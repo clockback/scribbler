@@ -9,7 +9,7 @@
 #include "./groups.h"
 
 int main(int argc, char *argv[]) {
-    // Sets up the game.
+    /* Sets up the game. */
     GamePtr game = (GamePtr) malloc(sizeof(Game));
     Game_init(game, 1000, 700);
 
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     const int fps = 60;
     const int frame_delay = 1000 / fps;
 
-    // Main loop
+    /* Runs the main loop */
     while (game->running) {
     	frame_start = SDL_GetTicks();
 
@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
     	}
     }
 
+    /* Clears the heap. */
     Game_clean(game);
 
     return 0;
