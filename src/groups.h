@@ -3,6 +3,7 @@
 
 enum groupLabels {
 	GROUP_PLAYERS,
+	GROUP_WORLD,
 	MAX_GROUPS
 };
 

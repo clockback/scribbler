@@ -46,9 +46,10 @@ void Game_prepare(GamePtr me) {
 		Plane_get_tile(ramp, 9, 3)
 	);
 
-    // Creates an entity.
+    // Creates a player entity.
     EntityPtr player = System_add_entity(me->sys);
     Entity_add_group(player, GROUP_PLAYERS);
+    Entity_add_group(player, GROUP_WORLD);
     Entity_add_component(
 		player, MAPPED_COMPONENT, 3, 6.5f, 2.5f, ground_floor
 	);
@@ -111,6 +112,17 @@ void Game_prepare(GamePtr me) {
     AnimateComponent_load_sprite(animate, WALK_RIGHT_5, "right_walk_5.png");
     AnimateComponent_load_sprite(animate, WALK_RIGHT_6, "right_walk_6.png");
     AnimateComponent_use_sprite(animate, STAND_FORWARDS);
+
+    // Creates a player entity.
+    EntityPtr bin = System_add_entity(me->sys);
+    Entity_add_group(bin, GROUP_WORLD);
+    Entity_add_component(bin, MAPPED_COMPONENT, 3, 7.4f, 2.2f, upper_floor);
+    Entity_add_component(
+		bin, SPRITE_COMPONENT, 2,
+		"assets/images/scenery/park/rubbish_bin.png", 3
+	);
+
+    Tile_set_walkable(Plane_get_tile(upper_floor, 7, 2), false);
 }
 
 void Game_handle_events(GamePtr me) {
@@ -188,6 +200,96 @@ void Game_update(GamePtr me) {
 	System_update(me->sys);
 }
 
+void quick_sort(EntityPtr * draw_order, const int length) {
+	int no_partitions = 1;
+	int partition_i[length];
+	int partition_size[length];
+	partition_i[0] = 0;
+	partition_size[0] = length;
+
+	while (no_partitions) {
+		int left_i = partition_i[0];
+		int pivot_i = left_i + partition_size[0] - 1;
+		int right_i = pivot_i - 1;
+
+		MappedComponentPtr p_val = (MappedComponentPtr)Entity_fetch_component(
+			draw_order[pivot_i], MAPPED_COMPONENT
+		);
+
+		MappedComponentPtr l_val;
+		MappedComponentPtr r_val;
+
+		while (right_i > left_i) {
+			l_val = (MappedComponentPtr)Entity_fetch_component(
+				draw_order[left_i], MAPPED_COMPONENT
+			);
+			r_val = (MappedComponentPtr)Entity_fetch_component(
+				draw_order[right_i], MAPPED_COMPONENT
+		    );
+
+			bool swap_left = l_val->y < p_val->y;
+			if (!swap_left) {
+				left_i ++;
+			}
+
+			bool swap_right = r_val->y > p_val->y;
+			if (!swap_right) {
+				right_i --;
+			}
+
+			if (swap_left && swap_right) {
+				draw_order[left_i] = ((ComponentPtr)r_val)->entity;
+				draw_order[right_i] = ((ComponentPtr)l_val)->entity;
+
+				if (left_i + 1 == right_i) {
+					break;
+				}
+				left_i ++;
+				right_i --;
+			}
+		}
+
+		int final_pos = -1;
+		if (right_i == left_i) {
+			if (((MappedComponentPtr)Entity_fetch_component(
+				draw_order[left_i], MAPPED_COMPONENT
+			))->y < p_val->y) {
+				final_pos = left_i;
+			}
+			else {
+				final_pos = left_i + 1;
+			}
+		}
+		else {
+			final_pos = right_i;
+		}
+
+		draw_order[pivot_i] = draw_order[final_pos];
+		draw_order[final_pos] = ((ComponentPtr)p_val)->entity;
+
+		if (final_pos > partition_i[0] + 1) {
+			no_partitions ++;
+			partition_i[no_partitions - 1] = partition_i[0];
+			partition_size[no_partitions - 1] = final_pos - partition_i[0];
+		}
+
+		if (final_pos < pivot_i - 1) {
+			no_partitions ++;
+			partition_i[no_partitions - 1] = final_pos + 1;
+			partition_size[no_partitions - 1] = pivot_i - final_pos;
+		}
+
+		no_partitions --;
+		if (no_partitions) {
+			for (int i = 1; i <= no_partitions; i ++) {
+				partition_i[i - 1] = partition_i[i];
+				partition_size[i - 1] = partition_size[i];
+			}
+		}
+
+	}
+}
+
 void Game_render(GamePtr me) {
     SDL_SetRenderDrawColor(me->rend, 255, 0, 0, 255);
     SDL_RenderClear(me->screen->rend);
@@ -196,11 +298,19 @@ void Game_render(GamePtr me) {
 		Plane_draw(me->room->planes[i], me->screen);
 	}
 
-	EntityPtr * players = System_get_group(me->sys, GROUP_PLAYERS);
-	size_t no_players = System_get_group_size(me->sys, GROUP_PLAYERS);
+	EntityPtr * world_entities = System_get_group(me->sys, GROUP_WORLD);
+	size_t no_world_entities = System_get_group_size(me->sys, GROUP_WORLD);
+	EntityPtr * draw_order = (EntityPtr *) malloc(
+		no_world_entities * sizeof(EntityPtr)
+	);
+	for (size_t i = 0; i < no_world_entities; i ++) {
+		draw_order[i] = world_entities[i];
+	}
 
-	for (size_t i = 0; i < no_players; i ++) {
-		Entity_draw(players[i]);
+	quick_sort(draw_order, no_world_entities);
+
+	for (size_t i = 0; i < no_world_entities; i ++) {
+		Entity_draw(draw_order[i]);
 	}
 
     SDL_RenderPresent(me->screen->rend);

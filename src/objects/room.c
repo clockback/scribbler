@@ -11,6 +11,7 @@ void Room_init(
 	me->name = (const char *) malloc(sizeof(const char));
 	me->name = name;
 	me->planes = (PlanePtr *) malloc(sizeof(Plane));
+	me->no_planes = 0;
 	me->focal_point_height = focal_point_height;
 	me->scale_rate = scale_rate;
 	me->tiles_x = tiles_x;

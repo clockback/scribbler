@@ -24,5 +24,6 @@ void Game_handle_events(GamePtr me);
 void Game_update(GamePtr me);
 void Game_render(GamePtr me);
 void Game_clean(GamePtr me);
+void quick_sort(EntityPtr * draw_order, int length);
 
 #endif

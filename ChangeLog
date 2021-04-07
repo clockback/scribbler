@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.2] - 2021-04-07
+### Added
+- Using quicksort algorithm to sort entities in the world (as opposed to text,
+  overlay, etc.) for display.
+- Simple demonstration on a rubbish bin. The character can walk in front of and
+  behind the bin.
+
+### Changed
+- The shoes shown in the images for the main character have been fixed.
+
+### Fixed
+- Forgot to set the number of planes to zero in a room upon initialization,
+  resulting in run-time errors.
+
 ## [0.0.1] - 2021-04-05
 ### Added
 - Entity-component system implemented with following components:
