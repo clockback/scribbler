@@ -10,6 +10,7 @@ typedef struct {
 	SDL_Rect * src_rect;
 	SDL_Rect * dest_rect;
 	MappedComponentPtr mapped;
+	double scale;
 } SpriteComponent;
 
 typedef SpriteComponent * SpriteComponentPtr;
@@ -20,5 +21,7 @@ ComponentPtr SpriteComponent_init(
 void SpriteComponent_update(void * me_void);
 void SpriteComponent_draw(void * me_void);
 void SpriteComponent_delete(void * me_void);
+
+void SpriteComponent_scale(SpriteComponentPtr me, double scale);
 
 #endif

@@ -15,7 +15,7 @@ ComponentPtr AnimateComponent_init(
 	);
 
 	me->directory = va_arg(*args, const char *);
-	me->scale = va_arg(*args, int);
+	me->scale = 1;
 	me->current = STAND_FORWARDS;
 	me->display = true;
 	me->i = 0;
@@ -201,7 +201,6 @@ void AnimateComponent_load_sprite(
 		((ComponentPtr)me)->entity->system, full_filename, &width, &height
 	);
 
-
 	me->source_rects[animation] = (SDL_Rect *) malloc(sizeof(SDL_Rect));
 	me->source_rects[animation]->x = 0;
 	me->source_rects[animation]->y = 0;
@@ -219,4 +218,8 @@ void AnimateComponent_use_sprite(AnimateComponentPtr me, size_t animation) {
 
 void AnimateComponent_set_display(AnimateComponentPtr me, bool display) {
 	me->display = display;
+}
+
+void AnimateComponent_scale(AnimateComponentPtr me, double scale) {
+	me->scale = scale;
 }

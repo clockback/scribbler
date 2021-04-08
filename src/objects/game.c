@@ -7,7 +7,7 @@ void Game_init(GamePtr me, int screen_width, int screen_height) {
 	me->running = true;
 
 	me->screen = (ScreenPtr) malloc(sizeof(Screen));
-    Screen_init(me->screen, screen_width, screen_height);
+    Screen_init(me->screen, screen_width, screen_height, 2);
 
     me->rend = me->screen->rend;
 
@@ -29,8 +29,8 @@ void Game_prepare(GamePtr me) {
     Tile_set_walkable(Plane_get_tile(ground_floor, 9, 2), false);
     Tile_set_walkable(Plane_get_tile(ground_floor, 9, 3), false);
     Tile_set_walkable(Plane_get_tile(ground_floor, 9, 4), false);
-    PlanePtr ramp = Room_add_plane(me->room, 9, 1, 10, 4, -100, 0, 100);
-    PlanePtr upper_floor = Room_add_plane(me->room, 0, 0, 10, 5, 300, 0, 0);
+    PlanePtr ramp = Room_add_plane(me->room, 9, 1, 10, 4, -35, 0, 35);
+    PlanePtr upper_floor = Room_add_plane(me->room, 0, 0, 10, 5, 105, 0, 0);
     Tile_set_walkable(Plane_get_tile(upper_floor, 9, 0), false);
     Tile_set_walkable(Plane_get_tile(upper_floor, 9, 1), false);
     Tile_set_walkable(Plane_get_tile(upper_floor, 9, 2), false);
@@ -56,7 +56,7 @@ void Game_prepare(GamePtr me) {
     Entity_add_component(player, MOVE_COMPONENT, 0);
     Entity_add_component(player, JOURNEY_COMPONENT, 1, me->room);
     AnimateComponentPtr animate = Entity_add_component(
-		player, ANIMATE_COMPONENT, 2, "assets/images/characters/micah", 3
+		player, ANIMATE_COMPONENT, 1, "assets/images/characters/micah"
 	);
 
     AnimateComponent_load_sprite(animate, STAND_FORWARDS, "front.png");
@@ -119,7 +119,7 @@ void Game_prepare(GamePtr me) {
     Entity_add_component(bin, MAPPED_COMPONENT, 3, 7.4f, 2.2f, upper_floor);
     Entity_add_component(
 		bin, SPRITE_COMPONENT, 2,
-		"assets/images/scenery/park/rubbish_bin.png", 3
+		"assets/images/scenery/park/rubbish_bin.png", 1
 	);
 
     Tile_set_walkable(Plane_get_tile(upper_floor, 7, 2), false);
@@ -134,6 +134,9 @@ void Game_handle_events(GamePtr me) {
             break;
         case SDL_MOUSEBUTTONDOWN:
         	;
+        	int mouse_x = me->event->motion.x / me->screen->scale;
+        	int mouse_y = me->event->motion.y / me->screen->scale;
+
         	EntityPtr * players = System_get_group(me->sys, GROUP_PLAYERS);
         	size_t no_players = System_get_group_size(me->sys, GROUP_PLAYERS);
 
@@ -142,14 +145,13 @@ void Game_handle_events(GamePtr me) {
         	double chosen_height = -999999;
         	for (int i = 0; i < me->room->no_planes; i ++) {
             	double y = Plane_get_mapped_y(
-    				me->room->planes[i], me->screen, me->event->motion.x,
-    				me->event->motion.y, &rc
+    				me->room->planes[i], me->screen, mouse_x, mouse_y, &rc
     			);
             	if (rc != 0) {
             		continue;
             	}
     			double x = Plane_get_mapped_x(
-    				me->room->planes[i], me->screen, me->event->motion.x, y
+    				me->room->planes[i], me->screen, mouse_x, y
     			);
     			if (
     				x < me->room->planes[i]->min_x
@@ -291,6 +293,7 @@ void quick_sort(EntityPtr * draw_order, const int length) {
 }
 
 void Game_render(GamePtr me) {
+    SDL_SetRenderTarget(me->screen->rend, me->screen->main_tex);
     SDL_SetRenderDrawColor(me->rend, 255, 0, 0, 255);
     SDL_RenderClear(me->screen->rend);
 
@@ -313,7 +316,12 @@ void Game_render(GamePtr me) {
 		Entity_draw(draw_order[i]);
 	}
 
-    SDL_RenderPresent(me->screen->rend);
+    SDL_SetRenderTarget(me->screen->rend, NULL);
+	SDL_RenderCopy(
+		me->screen->rend, me->screen->main_tex, me->screen->src_rect,
+		me->screen->dest_rect
+	);
+	SDL_RenderPresent(me->screen->rend);
 }
 
 void Game_clean(GamePtr me) {

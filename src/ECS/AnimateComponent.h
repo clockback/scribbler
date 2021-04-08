@@ -43,7 +43,7 @@ typedef struct {
 	SDL_Rect * source_rects[MAX_ANIMATION_FRAMES];
 	SDL_Rect * dest_rect;
 	MappedComponentPtr mapped;
-	int scale;
+	double scale;
 	const char * directory;
 	size_t current;
 	bool display;
@@ -65,5 +65,6 @@ void AnimateComponent_load_sprite(
 );
 void AnimateComponent_use_sprite(AnimateComponentPtr me, size_t animation);
 void AnimateComponent_set_display(AnimateComponentPtr me, bool display);
+void AnimateComponent_scale(AnimateComponentPtr me, double scale);
 
 #endif

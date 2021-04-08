@@ -11,7 +11,7 @@
 int main(int argc, char *argv[]) {
     /* Sets up the game. */
     GamePtr game = (GamePtr) malloc(sizeof(Game));
-    Game_init(game, 1000, 700);
+    Game_init(game, 330, 230);
 
     Uint32 frame_start;
     int frame_time;

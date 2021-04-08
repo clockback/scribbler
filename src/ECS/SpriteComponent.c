@@ -18,7 +18,7 @@ ComponentPtr SpriteComponent_init(
 		&height
 	);
 
-	int scale = va_arg(*args, int);
+	me->scale = 1;
 
 	me->src_rect = (SDL_Rect *) malloc(sizeof(SDL_Rect));
 	me->src_rect->x = 0;
@@ -33,8 +33,8 @@ ComponentPtr SpriteComponent_init(
 	me->dest_rect = (SDL_Rect *) malloc(sizeof(SDL_Rect));
 	me->dest_rect->x = me->mapped->x;
 	me->dest_rect->y = me->mapped->y;
-	me->dest_rect->w = width * scale;
-	me->dest_rect->h = height * scale;
+	me->dest_rect->w = width * me->scale;
+	me->dest_rect->h = height * me->scale;
 
 	return me_component;
 }
@@ -71,4 +71,8 @@ void SpriteComponent_draw(void * me_void) {
 
 void SpriteComponent_delete(void * me_void) {
 
+}
+
+void SpriteComponent_scale(SpriteComponentPtr me, double scale) {
+	me->scale = scale;
 }

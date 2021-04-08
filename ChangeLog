@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.3] - 2021-04-08
+### Added
+- Each entity can now have its scale adjusted, whether through the
+  AnimateComponent or the SpriteComponent.
+
+### Changed
+- The graphics are now rendered on a smaller screen, which is then scaled to a
+  larger size to fit the window.
+
 ## [0.0.2] - 2021-04-07
 ### Added
 - Using quicksort algorithm to sort entities in the world (as opposed to text,
