@@ -20,6 +20,8 @@ ComponentPtr AnimateComponent_init(
 	me->display = true;
 	me->i = 0;
 	me->count = 0;
+	me->scale = 1;
+	me->disable_scaling = false;
 
 	return me_component;
 }
@@ -161,6 +163,17 @@ void AnimateComponent_draw(void * me_void) {
 		return;
 	}
 
+	if (
+		!me->disable_scaling && me->mapped != NULL && me->mapped->plane != NULL
+	) {
+		AnimateComponent_scale(me, powf(
+			1 - me->mapped->plane->room->scale_rate, me->mapped->y
+		));
+	}
+	else if (me->disable_scaling) {
+		me->scale = 1;
+	}
+
 	if (me->mapped == NULL) {
 		me->dest_rect->x = me->mapped->x;
 		me->dest_rect->y = me->mapped->y;
@@ -222,4 +235,14 @@ void AnimateComponent_set_display(AnimateComponentPtr me, bool display) {
 
 void AnimateComponent_scale(AnimateComponentPtr me, double scale) {
 	me->scale = scale;
+	me->disable_scaling = false;
+	me->dest_rect->w = me->source_rects[me->current]->w * me->scale;
+	me->dest_rect->h = me->source_rects[me->current]->h * me->scale;
+}
+
+void AnimateComponent_enable_scaling(AnimateComponentPtr me, bool scale) {
+	if (!scale) {
+		me->scale = 1.0f;
+	}
+	me->disable_scaling = !scale;
 }

@@ -7,7 +7,7 @@ void Game_init(GamePtr me, int screen_width, int screen_height) {
 	me->running = true;
 
 	me->screen = (ScreenPtr) malloc(sizeof(Screen));
-    Screen_init(me->screen, screen_width, screen_height, 2);
+    Screen_init(me->screen, screen_width, screen_height, 3);
 
     me->rend = me->screen->rend;
 
@@ -23,7 +23,7 @@ void Game_init(GamePtr me, int screen_width, int screen_height) {
 
 void Game_prepare(GamePtr me) {
     // Creates a room.
-    Room_init(me->room, "Home Lounge", 0, 0.1, 10);
+    Room_init(me->room, "Home Lounge", -200, 0.05, 10);
     PlanePtr ground_floor = Room_add_plane(me->room, 0, 0, 10, 5, 0, 0, 0);
     Tile_set_walkable(Plane_get_tile(ground_floor, 9, 1), false);
     Tile_set_walkable(Plane_get_tile(ground_floor, 9, 2), false);
@@ -117,10 +117,11 @@ void Game_prepare(GamePtr me) {
     EntityPtr bin = System_add_entity(me->sys);
     Entity_add_group(bin, GROUP_WORLD);
     Entity_add_component(bin, MAPPED_COMPONENT, 3, 7.4f, 2.2f, upper_floor);
-    Entity_add_component(
+    SpriteComponentPtr sprite = (SpriteComponentPtr)Entity_add_component(
 		bin, SPRITE_COMPONENT, 2,
 		"assets/images/scenery/park/rubbish_bin.png", 1
 	);
+    SpriteComponent_enable_scaling(sprite, true);
 
     Tile_set_walkable(Plane_get_tile(upper_floor, 7, 2), false);
 }

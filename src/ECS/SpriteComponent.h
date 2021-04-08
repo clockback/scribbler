@@ -11,6 +11,9 @@ typedef struct {
 	SDL_Rect * dest_rect;
 	MappedComponentPtr mapped;
 	double scale;
+	bool disable_scaling;
+	int width;
+	int height;
 } SpriteComponent;
 
 typedef SpriteComponent * SpriteComponentPtr;
@@ -23,5 +26,6 @@ void SpriteComponent_draw(void * me_void);
 void SpriteComponent_delete(void * me_void);
 
 void SpriteComponent_scale(SpriteComponentPtr me, double scale);
+void SpriteComponent_enable_scaling(SpriteComponentPtr me, bool scale);
 
 #endif

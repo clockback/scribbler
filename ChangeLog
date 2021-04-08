@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.4] - 2021-04-08
+### Added
+- Visual scaling is now automatically handled for any entity with a
+  MappedComponent, and either a SpriteComponent or an AnimationComponent unless
+  otherwise specified.
+
 ## [0.0.3] - 2021-04-08
 ### Added
 - Each entity can now have its scale adjusted, whether through the
@@ -41,4 +47,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Animate: A collection of indexed images which are applied contextually.
 - Rooms, which contain planes, which contain tiles, which contain tile edges.
 - Simple pixel-art for a character.
-
