@@ -1,3 +1,23 @@
+/**
+ * Scribbler
+ * Copyright (C) 2021 Elliot Paton-Simpson
+ *
+ * This file is part of Scribbler.
+ *
+ *  Scribbler is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Scribbler is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "./game.h"
 #include "./graphics.h"
 #include "./room.h"
@@ -47,11 +67,11 @@ void Game_prepare(GamePtr me) {
 	);
 
     // Creates a player entity.
-    EntityPtr player = System_add_entity(me->sys);
+    EntityPtr player = System_add_entity(me->sys, "Micah");
     Entity_add_group(player, GROUP_PLAYERS);
     Entity_add_group(player, GROUP_WORLD);
     Entity_add_component(
-		player, MAPPED_COMPONENT, 3, 6.5f, 2.5f, ground_floor
+		player, MAPPED_COMPONENT, 3, 1.5f, 0.5f, ground_floor
 	);
     Entity_add_component(player, MOVE_COMPONENT, 0);
     Entity_add_component(player, JOURNEY_COMPONENT, 1, me->room);
@@ -114,83 +134,29 @@ void Game_prepare(GamePtr me) {
     AnimateComponent_use_sprite(animate, STAND_FORWARDS);
 
     // Creates a player entity.
-    EntityPtr bin = System_add_entity(me->sys);
+    EntityPtr bin = System_add_entity(me->sys, "rubbish bin");
     Entity_add_group(bin, GROUP_WORLD);
-    Entity_add_component(bin, MAPPED_COMPONENT, 3, 7.4f, 2.2f, upper_floor);
+    Entity_add_component(bin, MAPPED_COMPONENT, 3, 0.4f, 0.0f, ground_floor);
     SpriteComponentPtr sprite = (SpriteComponentPtr)Entity_add_component(
 		bin, SPRITE_COMPONENT, 2,
 		"assets/images/scenery/park/rubbish_bin.png", 1
 	);
     SpriteComponent_enable_scaling(sprite, true);
-
-    Tile_set_walkable(Plane_get_tile(upper_floor, 7, 2), false);
+    ClickComponentPtr click = Entity_add_component(bin, CLICK_COMPONENT, 0);
+    ClickComponent_set_interact_point(
+		click, Plane_get_tile(ground_floor, 1, 0), 1.0, 0.1, LEFT_DIR
+    );
+    Tile_set_walkable(Plane_get_tile(ground_floor, 0, 0), false);
 }
 
 void Game_handle_events(GamePtr me) {
     while (SDL_PollEvent(me->event)) {
-        int rc;
         switch (me->event->type) {
         case SDL_QUIT:
             me->running = false;
             break;
         case SDL_MOUSEBUTTONDOWN:
-        	;
-        	int mouse_x = me->event->motion.x / me->screen->scale;
-        	int mouse_y = me->event->motion.y / me->screen->scale;
-
-        	EntityPtr * players = System_get_group(me->sys, GROUP_PLAYERS);
-        	size_t no_players = System_get_group_size(me->sys, GROUP_PLAYERS);
-
-        	int no_plane = -1;
-        	double chosen_x, chosen_y;
-        	double chosen_height = -999999;
-        	for (int i = 0; i < me->room->no_planes; i ++) {
-            	double y = Plane_get_mapped_y(
-    				me->room->planes[i], me->screen, mouse_x, mouse_y, &rc
-    			);
-            	if (rc != 0) {
-            		continue;
-            	}
-    			double x = Plane_get_mapped_x(
-    				me->room->planes[i], me->screen, mouse_x, y
-    			);
-    			if (
-    				x < me->room->planes[i]->min_x
-    				|| x > me->room->planes[i]->max_x
-    			) {
-    				continue;
-    			}
-
-    			if (!Plane_get_tile(
-					me->room->planes[i], (int)x, (int)y
-				)->walkable) {
-    				continue;
-    			}
-
-    			double height = Plane_get_height(me->room->planes[i], x, y);
-    			if (height <= chosen_height) {
-    				continue;
-    			}
-
-    			no_plane = i;
-    			chosen_x = x;
-    			chosen_y = y;
-    			chosen_height = height;
-        	}
-
-        	if (no_plane == -1) {
-        		break;
-        	}
-
-        	for (size_t i = 0; i < no_players; i ++) {
-    			JourneyComponentPtr journey = Entity_fetch_component(
-					players[i], JOURNEY_COMPONENT
-				);
-        		JourneyComponent_journey_to(journey, Plane_get_tile(
-					me->room->planes[no_plane], (int)chosen_x, (int)chosen_y
-				), chosen_x, chosen_y);
-        	}
-
+        	Game_click(me);
         	break;
         default:
             break;
@@ -203,7 +169,167 @@ void Game_update(GamePtr me) {
 	System_update(me->sys);
 }
 
+void Game_render(GamePtr me) {
+    SDL_SetRenderTarget(me->screen->rend, me->screen->main_tex);
+    SDL_SetRenderDrawColor(me->rend, 255, 0, 0, 255);
+    SDL_RenderClear(me->screen->rend);
+
+	for (size_t i = 0; i < me->room->no_planes; i ++) {
+		Plane_draw(me->room->planes[i], me->screen);
+	}
+
+	EntityPtr * world_entities = System_get_group(me->sys, GROUP_WORLD);
+	size_t no_world_entities = System_get_group_size(me->sys, GROUP_WORLD);
+	EntityPtr * draw_order = (EntityPtr *) malloc(
+		no_world_entities * sizeof(EntityPtr)
+	);
+	for (size_t i = 0; i < no_world_entities; i ++) {
+		draw_order[i] = world_entities[i];
+	}
+
+	quick_sort(draw_order, no_world_entities);
+
+	for (size_t i = 0; i < no_world_entities; i ++) {
+		Entity_draw(draw_order[i]);
+	}
+
+    SDL_SetRenderTarget(me->screen->rend, NULL);
+	SDL_RenderCopy(
+		me->screen->rend, me->screen->main_tex, me->screen->src_rect,
+		me->screen->dest_rect
+	);
+	SDL_RenderPresent(me->screen->rend);
+}
+
+void Game_clean(GamePtr me) {
+	SDL_DestroyWindow(me->screen->window);
+	SDL_DestroyRenderer(me->rend);
+	SDL_Quit();
+}
+
+void Game_click(GamePtr me) {
+    int rc;
+
+	int mouse_x = me->event->motion.x / me->screen->scale;
+	int mouse_y = me->event->motion.y / me->screen->scale;
+
+	EntityPtr * world_entities = System_get_group(me->sys, GROUP_WORLD);
+	size_t no_world_entities = System_get_group_size(me->sys, GROUP_WORLD);
+	EntityPtr * draw_order = (EntityPtr *) malloc(
+		no_world_entities * sizeof(EntityPtr)
+	);
+	for (size_t i = 0; i < no_world_entities; i ++) {
+		draw_order[i] = world_entities[i];
+	}
+
+	quick_sort(draw_order, no_world_entities);
+
+	for (size_t i = no_world_entities - 1; (int)i >= 0; i --) {
+		if (Entity_has_component(draw_order[i], CLICK_COMPONENT)) {
+			ClickComponentPtr click_component = Entity_fetch_component(
+				draw_order[i], CLICK_COMPONENT
+			);
+			if (ClickComponent_targeting(click_component, mouse_x, mouse_y)) {
+				ClickComponent_journey_to(click_component, mouse_x, me->room);
+				return;
+			}
+		}
+	}
+
+	EntityPtr * players = System_get_group(me->sys, GROUP_PLAYERS);
+	size_t no_players = System_get_group_size(me->sys, GROUP_PLAYERS);
+
+	int no_plane = -1;
+	double chosen_x, chosen_y;
+	double chosen_height = -999999;
+	TilePtr chosen_tile = NULL;
+	for (int i = 0; i < me->room->no_planes; i ++) {
+		PlanePtr plane = me->room->planes[i];
+    	double y = Plane_get_mapped_y(
+			plane, me->screen, mouse_x, mouse_y, &rc
+		);
+    	if (rc != 0) {
+    		continue;
+    	}
+		double x = Plane_get_mapped_x(plane, me->screen, mouse_x, y);
+		if (x < plane->min_x || x > plane->max_x) {
+			continue;
+		}
+
+		TilePtr tile = Plane_get_tile(plane, (int)x, (int)y);
+
+		if (!tile->walkable) {
+			double close_x = pow(x - (int)x - 0.5, 2);
+			double close_y = pow(y - (int)y - 0.5, 2);
+			double other_x;
+			double other_y;
+			if (close_x >= close_y) {
+				other_y = y;
+				if (x - (int)x <= 0.5 && (int)x > plane->min_x) {
+					other_x = (double)(int)x;
+					tile = Plane_get_tile(plane, (int)x - 1, (int)y);
+				}
+				else if (x - (int)x > 0.5 && (int)x < plane->max_x) {
+					other_x = (double)(int)x + 1;
+					tile = Plane_get_tile(plane, (int)x + 1, (int)y);
+				}
+				else {
+					continue;
+				}
+			}
+			else {
+				other_x = x;
+				if (y - (int)y <= 0.5 && (int)y > plane->min_y) {
+					other_y = (double)(int)y;
+					tile = Plane_get_tile(plane, (int)x, (int)y - 1);
+				}
+				else if (y - (int)y > 0.5 && (int)y < plane->max_y) {
+					other_y = (double)(int)y + 1;
+					tile = Plane_get_tile(plane, (int)x, (int)y + 1);
+				}
+				else {
+					continue;
+				}
+			}
+
+			if (tile->walkable) {
+				x = other_x;
+				y = other_y;
+			}
+			else {
+				continue;
+			}
+		}
+
+		double height = Plane_get_height(plane, x, y);
+		if (height <= chosen_height) {
+			continue;
+		}
+
+		no_plane = i;
+		chosen_x = x;
+		chosen_y = y;
+		chosen_height = height;
+		chosen_tile = tile;
+	}
+
+	if (no_plane == -1) {
+		return;
+	}
+
+	for (size_t i = 0; i < no_players; i ++) {
+		JourneyComponentPtr journey = Entity_fetch_component(
+			players[i], JOURNEY_COMPONENT
+		);
+		JourneyComponent_journey_to(journey, chosen_tile, chosen_x, chosen_y);
+	}
+}
+
 void quick_sort(EntityPtr * draw_order, const int length) {
+	if (length < 2) {
+		return;
+	}
+
 	int no_partitions = 1;
 	int partition_i[length];
 	int partition_size[length];
@@ -291,42 +417,4 @@ void quick_sort(EntityPtr * draw_order, const int length) {
 		}
 
 	}
-}
-
-void Game_render(GamePtr me) {
-    SDL_SetRenderTarget(me->screen->rend, me->screen->main_tex);
-    SDL_SetRenderDrawColor(me->rend, 255, 0, 0, 255);
-    SDL_RenderClear(me->screen->rend);
-
-	for (size_t i = 0; i < me->room->no_planes; i ++) {
-		Plane_draw(me->room->planes[i], me->screen);
-	}
-
-	EntityPtr * world_entities = System_get_group(me->sys, GROUP_WORLD);
-	size_t no_world_entities = System_get_group_size(me->sys, GROUP_WORLD);
-	EntityPtr * draw_order = (EntityPtr *) malloc(
-		no_world_entities * sizeof(EntityPtr)
-	);
-	for (size_t i = 0; i < no_world_entities; i ++) {
-		draw_order[i] = world_entities[i];
-	}
-
-	quick_sort(draw_order, no_world_entities);
-
-	for (size_t i = 0; i < no_world_entities; i ++) {
-		Entity_draw(draw_order[i]);
-	}
-
-    SDL_SetRenderTarget(me->screen->rend, NULL);
-	SDL_RenderCopy(
-		me->screen->rend, me->screen->main_tex, me->screen->src_rect,
-		me->screen->dest_rect
-	);
-	SDL_RenderPresent(me->screen->rend);
-}
-
-void Game_clean(GamePtr me) {
-	SDL_DestroyWindow(me->screen->window);
-	SDL_DestroyRenderer(me->rend);
-	SDL_Quit();
 }

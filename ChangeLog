@@ -6,6 +6,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.5] - 2021-04-11
+### Added
+- Entities can now be clicked on for different behaviour to normal path
+  finding. The player now walks below an entity when the entity is clicked
+  upon, unless there is a user-defined interaction tile which indicates where
+  the user must interact with the entity.
+- When an unwalkable tile is selected, a bordering tile can contextually be
+  allocated to the user instead.
+- Copyright notices.
+- Inclusion of GPLv3.
+- Giving entities optional but unique id names.
+
+### Fixed
+- Using pow instead of powf when operating on doubles.
+- Quick sort no longer fails when operating on arrays of less than two items.
+
 ## [0.0.4] - 2021-04-08
 ### Added
 - Visual scaling is now automatically handled for any entity with a

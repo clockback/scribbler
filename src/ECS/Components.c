@@ -1,3 +1,23 @@
+/**
+ * Scribbler
+ * Copyright (C) 2021 Elliot Paton-Simpson
+ *
+ * This file is part of Scribbler.
+ *
+ *  Scribbler is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Scribbler is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <stdio.h>
 
 #include "Components.h"
@@ -21,6 +41,7 @@ void pre_init_functions() {
 	init_for_component_functions[SPRITE_COMPONENT] = SpriteComponent_init;
 	init_for_component_functions[JOURNEY_COMPONENT] = JourneyComponent_init;
 	init_for_component_functions[ANIMATE_COMPONENT] = AnimateComponent_init;
+	init_for_component_functions[CLICK_COMPONENT] = ClickComponent_init;
 }
 
 void pre_init_sizes() {
@@ -29,6 +50,7 @@ void pre_init_sizes() {
 	component_sizes[SPRITE_COMPONENT] = sizeof(SpriteComponent);
 	component_sizes[JOURNEY_COMPONENT] = sizeof(JourneyComponent);
 	component_sizes[ANIMATE_COMPONENT] = sizeof(AnimateComponent);
+	component_sizes[CLICK_COMPONENT] = sizeof(ClickComponent);
 }
 
 void pre_update_functions() {
@@ -37,6 +59,7 @@ void pre_update_functions() {
 	update_for_component_functions[SPRITE_COMPONENT] = SpriteComponent_update;
 	update_for_component_functions[JOURNEY_COMPONENT] = JourneyComponent_update;
 	update_for_component_functions[ANIMATE_COMPONENT] = AnimateComponent_update;
+	update_for_component_functions[CLICK_COMPONENT] = ClickComponent_update;
 }
 
 void pre_draw_functions() {
@@ -45,6 +68,7 @@ void pre_draw_functions() {
 	draw_for_component_functions[SPRITE_COMPONENT] = SpriteComponent_draw;
 	draw_for_component_functions[JOURNEY_COMPONENT] = JourneyComponent_draw;
 	draw_for_component_functions[ANIMATE_COMPONENT] = AnimateComponent_draw;
+	draw_for_component_functions[CLICK_COMPONENT] = ClickComponent_draw;
 }
 
 void pre_delete_functions() {
@@ -53,6 +77,7 @@ void pre_delete_functions() {
 	delete_for_component_functions[SPRITE_COMPONENT] = SpriteComponent_delete;
 	delete_for_component_functions[JOURNEY_COMPONENT] = JourneyComponent_delete;
 	delete_for_component_functions[ANIMATE_COMPONENT] = AnimateComponent_delete;
+	delete_for_component_functions[CLICK_COMPONENT] = ClickComponent_delete;
 }
 
 void init_components() {

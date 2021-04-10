@@ -1,3 +1,23 @@
+/**
+ * Scribbler
+ * Copyright (C) 2021 Elliot Paton-Simpson
+ *
+ * This file is part of Scribbler.
+ *
+ *  Scribbler is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Scribbler is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <stdarg.h>
 
 #include "JourneyComponent.h"
@@ -24,6 +44,7 @@ ComponentPtr JourneyComponent_init(
 	me->path_length = 0;
 	me->path_tiles = (TilePtr *) malloc(sizeof(TilePtr));
 	me->path_planes = (PlanePtr *) malloc(sizeof(TilePtr));
+	me->direction = NO_DIR;
 
 	return me_component;
 }
@@ -174,14 +195,10 @@ void JourneyComponent_journey_to(
 
 void JourneyComponent_dijkstra(JourneyComponentPtr me) {
 	/* Finds the tile which the entity presently occupies. */
-	TilePtr current_tile = Plane_get_tile(
-		me->mapped->plane, (int)me->mapped->x, (int)me->mapped->y
-	);
+	TilePtr current_tile = me->mapped->tile;
 
 	/* Finds the tile which is being targeted. */
-	TilePtr aim = Plane_get_tile(
-		me->target_tile->plane, me->target_x, me->target_y
-	);
+	TilePtr aim = me->target_tile;
 
 	/* Finds the number of tiles in the room. */
 	int no_all_tiles = Room_no_tiles(me->room);
@@ -391,4 +408,10 @@ void JourneyComponent_dijkstra(JourneyComponentPtr me) {
 	free(lengths);
 	free(ancestors);
 	free(ancestors_i);
+}
+
+void JourneyComponent_set_end_direction(
+	JourneyComponentPtr me, size_t direction
+) {
+	me->direction = direction;
 }

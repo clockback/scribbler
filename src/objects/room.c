@@ -1,3 +1,23 @@
+/**
+ * Scribbler
+ * Copyright (C) 2021 Elliot Paton-Simpson
+ *
+ * This file is part of Scribbler.
+ *
+ *  Scribbler is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Scribbler is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <math.h>
 #include <stdlib.h>
 
@@ -36,7 +56,7 @@ PlanePtr Room_add_plane(
 int Room_get_point_x(RoomPtr me, ScreenPtr screen, double x, double y) {
 	return screen->width / 2 + (x - me->tiles_x / 2) * (
 		screen->width / me->tiles_x
-	) * powf(1 - me->scale_rate, y);
+	) * pow(1 - me->scale_rate, y);
 }
 
 int Room_get_point_y(
@@ -44,7 +64,7 @@ int Room_get_point_y(
 ) {
 	return screen->height - z - (
 		screen->height - z - me->focal_point_height
-	) * (1 - powf(1 - me->scale_rate, y));
+	) * (1 - pow(1 - me->scale_rate, y));
 }
 
 int Room_no_tiles(RoomPtr me) {
@@ -233,7 +253,7 @@ double Plane_get_mapped_x(
 ) {
 	return (
 		((double)me->room->tiles_x / screen->width)
-		* powf(1 - me->room->scale_rate, -coord_y)
+		* pow(1 - me->room->scale_rate, -coord_y)
 		* (mouse_x - screen->width / 2)
 		+ (double)me->room->tiles_x / 2
 	);

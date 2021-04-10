@@ -1,3 +1,23 @@
+/**
+ * Scribbler
+ * Copyright (C) 2021 Elliot Paton-Simpson
+ *
+ * This file is part of Scribbler.
+ *
+ *  Scribbler is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Scribbler is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -30,13 +50,16 @@ void Component_delete(ComponentPtr me) {
 }
 
 
-void Entity_init(EntityPtr me, SystemPtr system, ScreenPtr screen) {
+void Entity_init(
+	EntityPtr me, SystemPtr system, ScreenPtr screen, const char * id
+) {
 	me->active = true;
 	me->system = system;
 	for (ComponentID i = 0; i < MAX_COMPONENTS; i ++) {
 		me->has_component[i] = false;
 	}
 	me->screen = screen;
+	me->id = id;
 }
 
 void * Entity_add_component(EntityPtr me, ComponentID type, int no_args, ...) {
@@ -122,11 +145,11 @@ void System_init(SystemPtr me, ScreenPtr screen) {
     me->screen = screen;
 }
 
-EntityPtr System_add_entity(SystemPtr me) {
+EntityPtr System_add_entity(SystemPtr me, const char * id) {
 	EntityPtr entity = (EntityPtr) malloc(sizeof(Entity));
 	me->entities[me->no_entities] = entity;
 	me->no_entities ++;
-	Entity_init(entity, me, me->screen);
+	Entity_init(entity, me, me->screen, id);
 
 	return entity;
 }

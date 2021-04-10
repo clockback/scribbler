@@ -1,3 +1,23 @@
+/**
+ * Scribbler
+ * Copyright (C) 2021 Elliot Paton-Simpson
+ *
+ * This file is part of Scribbler.
+ *
+ *  Scribbler is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Scribbler is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #ifndef __ECS_H__
 #define __ECS_H__
 
@@ -16,6 +36,7 @@ typedef enum {
 	SPRITE_COMPONENT,
 	JOURNEY_COMPONENT,
 	ANIMATE_COMPONENT,
+	CLICK_COMPONENT,
 	MAX_COMPONENTS
 } component_types;
 
@@ -58,9 +79,12 @@ struct Entity {
 	SystemPtr system;
 	GroupBitSet in_group;
 	ScreenPtr screen;
+	const char * id;
 };
 
-void Entity_init(EntityPtr me, SystemPtr SystemPtr, ScreenPtr screen);
+void Entity_init(
+	EntityPtr me, SystemPtr SystemPtr, ScreenPtr screen, const char * id
+);
 void * Entity_add_component(EntityPtr me, ComponentID type, int no_args, ...);
 void * Entity_fetch_component(EntityPtr me, ComponentID type);
 void Entity_add_group(EntityPtr me, Group group);
@@ -81,7 +105,7 @@ struct System {
 };
 
 void System_init(SystemPtr me, ScreenPtr screen);
-EntityPtr System_add_entity(SystemPtr me);
+EntityPtr System_add_entity(SystemPtr me, const char * id);
 void System_add_to_group(SystemPtr me, EntityPtr entity, Group group);
 EntityPtr * System_get_group(SystemPtr me, Group group);
 size_t System_get_group_size(SystemPtr me, Group group);

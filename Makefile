@@ -11,6 +11,7 @@ scribbler:
 		src/ECS/MappedComponent.c \
 		src/ECS/JourneyComponent.c \
 		src/ECS/AnimateComponent.c \
+		src/ECS/ClickComponent.c \
 		src/solver.c \
 		-lSDL2main \
 		-lSDL2 \

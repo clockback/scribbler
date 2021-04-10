@@ -18,34 +18,40 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __SPRITE_COMPONENT_H__
-#define __SPRITE_COMPONENT_H__
+#ifndef __CLICK_COMPONENT_H__
+#define __CLICK_COMPONENT_H__
 
 #include "ECS.h"
-#include "MappedComponent.h"
+#include "../objects/room.h"
 
 typedef struct {
 	Component base_component;
-	SDL_Texture * image;
-	SDL_Rect * src_rect;
-	SDL_Rect * dest_rect;
-	MappedComponentPtr mapped;
-	double scale;
-	bool disable_scaling;
-	int width;
-	int height;
-} SpriteComponent;
+	int left_boundary;
+	int right_boundary;
+	int top_boundary;
+	int bottom_boundary;
+	TilePtr interact_tile;
+	double interact_x;
+	double interact_y;
+	size_t interact_dir;
+} ClickComponent;
 
-typedef SpriteComponent * SpriteComponentPtr;
+typedef ClickComponent * ClickComponentPtr;
 
-ComponentPtr SpriteComponent_init(
+ComponentPtr ClickComponent_init(
 	void * me_void, EntityPtr entity, va_list * args
 );
-void SpriteComponent_update(void * me_void);
-void SpriteComponent_draw(void * me_void);
-void SpriteComponent_delete(void * me_void);
+void ClickComponent_update(void * me_void);
+void ClickComponent_draw(void * me_void);
+void ClickComponent_delete(void * me_void);
 
-void SpriteComponent_scale(SpriteComponentPtr me, double scale);
-void SpriteComponent_enable_scaling(SpriteComponentPtr me, bool scale);
+void ClickComponent_set_boundary_box(ClickComponentPtr me);
+bool ClickComponent_targeting(ClickComponentPtr me, int mouse_x, int mouse_y);
+void ClickComponent_set_interact_point(
+	ClickComponentPtr me, TilePtr tile, double x, double y, size_t direction
+);
+void ClickComponent_journey_to(
+	ClickComponentPtr me, int mouse_x, RoomPtr room
+);
 
 #endif
