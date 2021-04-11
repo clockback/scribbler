@@ -189,6 +189,7 @@ void JourneyComponent_journey_to(
 	me->target_tile = tile;
 	me->target_x = x;
 	me->target_y = y;
+	me->direction = NO_DIR;
 
 	JourneyComponent_dijkstra(me);
 }
