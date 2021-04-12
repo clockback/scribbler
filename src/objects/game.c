@@ -165,7 +165,7 @@ void Game_prepare(GamePtr me) {
 		click, Plane_get_tile(ground_floor, 1, 0), 1.0, 0.1, LEFT_DIR
     );
     Tile_set_walkable(Plane_get_tile(ground_floor, 0, 0), false);
-    Entity_add_component(bin, INTERACT_COMPONENT, 0);
+    Entity_add_component(bin, INTERACT_COMPONENT, 1, "Rubbish bin");
 }
 
 void Game_handle_events(GamePtr me) {

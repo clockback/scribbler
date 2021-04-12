@@ -33,6 +33,7 @@ ComponentPtr InteractComponent_init(
 	me->click = (ClickComponentPtr)Entity_fetch_component(
 		entity, CLICK_COMPONENT
 	);
+	me->name = va_arg(*args, const char *);
 
 	return me_component;
 }

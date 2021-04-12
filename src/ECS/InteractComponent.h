@@ -27,6 +27,7 @@
 typedef struct {
 	Component base_component;
     ClickComponentPtr click;
+    const char * name;
 } InteractComponent;
 
 typedef InteractComponent * InteractComponentPtr;
