@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.0.6] - 2021-04-12
+### Added
+- Introducing an InteractComponent to compliment the ClickComponent. Presently,
+  it introduces a state in the system according to which entity the user is
+  possibly clicking on.
+- The top-most entity with the cursor hovering over it affects the cursor.
+- Two new images for the cursor. The default has been hidden.
+
+### Fixed
+- Previously, if an entity was walking towards an interaction point, then their
+  movement was interrupted, they would retain the facing direction at the end
+  of their walk. This has been removed.
+
 ## [0.0.5] - 2021-04-11
 ### Added
 - Entities can now be clicked on for different behaviour to normal path

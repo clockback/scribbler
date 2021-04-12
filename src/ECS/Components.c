@@ -42,6 +42,7 @@ void pre_init_functions() {
 	init_for_component_functions[JOURNEY_COMPONENT] = JourneyComponent_init;
 	init_for_component_functions[ANIMATE_COMPONENT] = AnimateComponent_init;
 	init_for_component_functions[CLICK_COMPONENT] = ClickComponent_init;
+	init_for_component_functions[INTERACT_COMPONENT] = InteractComponent_init;
 }
 
 void pre_init_sizes() {
@@ -51,6 +52,7 @@ void pre_init_sizes() {
 	component_sizes[JOURNEY_COMPONENT] = sizeof(JourneyComponent);
 	component_sizes[ANIMATE_COMPONENT] = sizeof(AnimateComponent);
 	component_sizes[CLICK_COMPONENT] = sizeof(ClickComponent);
+	component_sizes[INTERACT_COMPONENT] = sizeof(InteractComponent);
 }
 
 void pre_update_functions() {
@@ -60,6 +62,9 @@ void pre_update_functions() {
 	update_for_component_functions[JOURNEY_COMPONENT] = JourneyComponent_update;
 	update_for_component_functions[ANIMATE_COMPONENT] = AnimateComponent_update;
 	update_for_component_functions[CLICK_COMPONENT] = ClickComponent_update;
+	update_for_component_functions[INTERACT_COMPONENT] = (
+		InteractComponent_update
+	);
 }
 
 void pre_draw_functions() {
@@ -69,6 +74,7 @@ void pre_draw_functions() {
 	draw_for_component_functions[JOURNEY_COMPONENT] = JourneyComponent_draw;
 	draw_for_component_functions[ANIMATE_COMPONENT] = AnimateComponent_draw;
 	draw_for_component_functions[CLICK_COMPONENT] = ClickComponent_draw;
+	draw_for_component_functions[INTERACT_COMPONENT] = InteractComponent_draw;
 }
 
 void pre_delete_functions() {
@@ -78,6 +84,9 @@ void pre_delete_functions() {
 	delete_for_component_functions[JOURNEY_COMPONENT] = JourneyComponent_delete;
 	delete_for_component_functions[ANIMATE_COMPONENT] = AnimateComponent_delete;
 	delete_for_component_functions[CLICK_COMPONENT] = ClickComponent_delete;
+	delete_for_component_functions[INTERACT_COMPONENT] = (
+		InteractComponent_delete
+	);
 }
 
 void init_components() {

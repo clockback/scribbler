@@ -27,6 +27,7 @@
 #include "JourneyComponent.h"
 #include "AnimateComponent.h"
 #include "ClickComponent.h"
+#include "InteractComponent.h"
 #include "ECS.h"
 
 extern ComponentPtr (*init_for_component_functions[MAX_COMPONENTS]) (

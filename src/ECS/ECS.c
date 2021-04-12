@@ -143,6 +143,7 @@ void System_init(SystemPtr me, ScreenPtr screen) {
     	me->grouped_entity_sizes[i] = 0;
     }
     me->screen = screen;
+    me->hover_entity = NULL;
 }
 
 EntityPtr System_add_entity(SystemPtr me, const char * id) {

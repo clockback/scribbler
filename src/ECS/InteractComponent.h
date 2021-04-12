@@ -18,40 +18,24 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __GAME_H__
-#define __GAME_H__
+#ifndef __INTERACT_COMPONENT_H__
+#define __INTERACT_COMPONENT_H__
 
-#include <stdbool.h>
-
-#include "./graphics.h"
-#include "../ECS/ECS.h"
-#include "./room.h"
+#include "ECS.h"
+#include "ClickComponent.h"
 
 typedef struct {
-    Screen * screen;
-    SDL_Renderer * rend;
-    SDL_Event * event;
-    bool running;
-    SystemPtr sys;
-    RoomPtr room;
+	Component base_component;
+    ClickComponentPtr click;
+} InteractComponent;
 
-    SDL_Texture * plain_cursor;
-    SDL_Texture * interact_cursor;
-    SDL_Rect * cursor_src_rect;
-    SDL_Rect * cursor_dest_rect;
-} Game;
+typedef InteractComponent * InteractComponentPtr;
 
-typedef Game * GamePtr;
-
-void Game_init(GamePtr me, int screen_width, int screen_height);
-void Game_prepare(GamePtr me);
-void Game_handle_events(GamePtr me);
-void Game_update(GamePtr me);
-void Game_render(GamePtr me);
-void Game_clean(GamePtr me);
-
-void Game_click(GamePtr me);
-
-void quick_sort(EntityPtr * draw_order, int length);
+ComponentPtr InteractComponent_init(
+	void * me_void, EntityPtr entity, va_list * args
+);
+void InteractComponent_update(void * me_void);
+void InteractComponent_draw(void * me_void);
+void InteractComponent_delete(void * me_void);
 
 #endif

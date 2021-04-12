@@ -37,6 +37,7 @@ typedef enum {
 	JOURNEY_COMPONENT,
 	ANIMATE_COMPONENT,
 	CLICK_COMPONENT,
+	INTERACT_COMPONENT,
 	MAX_COMPONENTS
 } component_types;
 
@@ -102,6 +103,7 @@ struct System {
     EntityPtr * grouped_entities[MAX_GROUPS];
     size_t grouped_entity_sizes[MAX_GROUPS];
 	ScreenPtr screen;
+	EntityPtr hover_entity;
 };
 
 void System_init(SystemPtr me, ScreenPtr screen);

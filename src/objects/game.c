@@ -38,6 +38,24 @@ void Game_init(GamePtr me, int screen_width, int screen_height) {
 
     me->room = (RoomPtr) malloc(sizeof(Room));
 
+    me->cursor_src_rect = (SDL_Rect *) malloc(sizeof(SDL_Rect));
+    me->cursor_dest_rect = (SDL_Rect *) malloc(sizeof(SDL_Rect));
+
+    SDL_ShowCursor(SDL_DISABLE);
+
+	me->plain_cursor = System_load_sprite(
+		me->sys, "assets/images/interface/cursors/plain.png",
+		&me->cursor_src_rect->w, &me->cursor_src_rect->h
+	);
+	me->interact_cursor = System_load_sprite(
+		me->sys, "assets/images/interface/cursors/interact.png",
+		&me->cursor_dest_rect->w, &me->cursor_dest_rect->h
+	);
+	me->cursor_src_rect->x = 0;
+	me->cursor_src_rect->y = 0;
+	me->cursor_dest_rect->x = 0;
+	me->cursor_dest_rect->y = 0;
+
     Game_prepare(me);
 }
 
@@ -147,6 +165,7 @@ void Game_prepare(GamePtr me) {
 		click, Plane_get_tile(ground_floor, 1, 0), 1.0, 0.1, LEFT_DIR
     );
     Tile_set_walkable(Plane_get_tile(ground_floor, 0, 0), false);
+    Entity_add_component(bin, INTERACT_COMPONENT, 0);
 }
 
 void Game_handle_events(GamePtr me) {
@@ -167,6 +186,12 @@ void Game_handle_events(GamePtr me) {
 void Game_update(GamePtr me) {
 	System_refresh(me->sys);
 	System_update(me->sys);
+
+	me->sys->hover_entity = NULL;
+
+	SDL_GetMouseState(&me->cursor_dest_rect->x, &me->cursor_dest_rect->y);
+	me->cursor_dest_rect->x /= 3;
+	me->cursor_dest_rect->y /= 3;
 }
 
 void Game_render(GamePtr me) {
@@ -192,6 +217,19 @@ void Game_render(GamePtr me) {
 	for (size_t i = 0; i < no_world_entities; i ++) {
 		Entity_draw(draw_order[i]);
 	}
+
+	SDL_Texture * cursor;
+	if (me->sys->hover_entity == NULL) {
+		cursor = me->plain_cursor;
+	}
+	else {
+		cursor = me->interact_cursor;
+		me->cursor_dest_rect->x -= me->cursor_dest_rect->w / 2;
+		me->cursor_dest_rect->y -= me->cursor_dest_rect->h / 2;
+	}
+	SDL_RenderCopy(
+		me->screen->rend, cursor, me->cursor_src_rect, me->cursor_dest_rect
+	);
 
     SDL_SetRenderTarget(me->screen->rend, NULL);
 	SDL_RenderCopy(
