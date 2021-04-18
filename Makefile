@@ -4,6 +4,8 @@ scribbler:
 		src/objects/graphics.c \
 		src/objects/game.c \
 		src/objects/room.c \
+		src/objects/font.c \
+		src/objects/globals.c \
 		src/ECS/Components.c \
 		src/ECS/ECS.c \
 		src/ECS/MoveComponent.c \

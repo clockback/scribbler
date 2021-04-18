@@ -27,7 +27,7 @@
 
 #include "ECS.h"
 #include "Components.h"
-
+#include "../objects/globals.h"
 
 void Component_init(ComponentPtr me, EntityPtr entity, ComponentID type) {
 	me->type = type;
@@ -133,7 +133,7 @@ void Entity_delete(EntityPtr me) {
 	free(me);
 }
 
-void System_init(SystemPtr me, ScreenPtr screen) {
+void System_init(SystemPtr me, GlobalsPtr globals) {
 	init_components();
 
     me->no_entities = 0;
@@ -142,8 +142,9 @@ void System_init(SystemPtr me, ScreenPtr screen) {
     	me->grouped_entities[i] = (EntityPtr*) malloc(sizeof(EntityPtr));
     	me->grouped_entity_sizes[i] = 0;
     }
-    me->screen = screen;
+    me->screen = globals->screen;
     me->hover_entity = NULL;
+    me->globals = globals;
 }
 
 EntityPtr System_add_entity(SystemPtr me, const char * id) {
@@ -223,35 +224,4 @@ void System_refresh(SystemPtr me) {
 		}
 	}
 	me->entities = realloc(me->entities, me->no_entities * sizeof(EntityPtr));
-}
-
-SDL_Texture * System_load_sprite(
-	SystemPtr me, const char * path, int * width, int * height
-) {
-	unsigned char buffer[24];
-	FILE * file_ptr;
-	file_ptr = fopen(path, "rb");
-	fread(buffer, sizeof(buffer), 1, file_ptr);
-
-	*width = (int)(
-		(unsigned char)(buffer[16]) << 24 |
-		(unsigned char)(buffer[17]) << 16 |
-	    (unsigned char)(buffer[18]) << 8 |
-	    (unsigned char)(buffer[19])
-	);
-
-	*height = (int)(
-		(unsigned char)(buffer[20]) << 24 |
-		(unsigned char)(buffer[21]) << 16 |
-		(unsigned char)(buffer[22]) << 8 |
-		(unsigned char)(buffer[23])
-	);
-
-	SDL_Surface * temp_surface = IMG_Load(path);
-	SDL_Texture * tex = SDL_CreateTextureFromSurface(
-		me->screen->rend, temp_surface
-	);
-	SDL_FreeSurface(temp_surface);
-
-	return tex;
 }

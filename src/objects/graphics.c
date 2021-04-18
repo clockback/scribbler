@@ -59,3 +59,34 @@ void Screen_init(ScreenPtr me, int width, int height, int scale) {
 	);
     SDL_SetRenderTarget(me->rend, me->main_tex);
 }
+
+SDL_Texture * Screen_load_sprite(
+	ScreenPtr me, const char * path, int * width, int * height
+) {
+	unsigned char buffer[24];
+	FILE * file_ptr;
+	file_ptr = fopen(path, "rb");
+	fread(buffer, sizeof(buffer), 1, file_ptr);
+
+	*width = (int)(
+		(unsigned char)(buffer[16]) << 24 |
+		(unsigned char)(buffer[17]) << 16 |
+	    (unsigned char)(buffer[18]) << 8 |
+	    (unsigned char)(buffer[19])
+	);
+
+	*height = (int)(
+		(unsigned char)(buffer[20]) << 24 |
+		(unsigned char)(buffer[21]) << 16 |
+		(unsigned char)(buffer[22]) << 8 |
+		(unsigned char)(buffer[23])
+	);
+
+	SDL_Surface * temp_surface = IMG_Load(path);
+	SDL_Texture * tex = SDL_CreateTextureFromSurface(
+		me->rend, temp_surface
+	);
+	SDL_FreeSurface(temp_surface);
+
+	return tex;
+}

@@ -5,6 +5,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+## [0.0.7] - 2021-04-16
+### Added
+- Creating .PNG glyphs for a font.
+- Creating a font renderer and corresponding text object.
+- The InteractComponent will, when its entity is hovered over, display a piece
+  of text identifying the entity.
+
+### Fixed
+- Ensuring that the cursor is displayed in the right place, irrespective of the
+  scaling value.
+- Likewise ensuring that the entity over which the entity is hovering works for
+  any scaling value.
+- Fixed bug which caused unwalkable tiles on the border to have game-breaking
+  click events when the mouse was closer to the border than the other side.
+- Fixed bug causing the journey component to fail to assign the
+  MappedComponent's tile's plane and the MappedComponent's plane to the same
+  plane, resulting in somewhat rare but unusual plane-hopping.
 
 ## [0.0.6] - 2021-04-12
 ### Added

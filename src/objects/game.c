@@ -21,34 +21,41 @@
 #include "./game.h"
 #include "./graphics.h"
 #include "./room.h"
+#include "./globals.h"
 #include "../ECS/Components.h"
 
 void Game_init(GamePtr me, int screen_width, int screen_height) {
 	me->running = true;
 
 	me->screen = (ScreenPtr) malloc(sizeof(Screen));
-    Screen_init(me->screen, screen_width, screen_height, 3);
+    Screen_init(me->screen, screen_width, screen_height, 2);
+
+    me->room = (RoomPtr) malloc(sizeof(Room));
+
+    me->font = (FontPtr) malloc(sizeof(Font));
+    Font_init(me->font, "assets/images/glyphs", me->screen, 100);
+
+	me->globals = (GlobalsPtr) malloc(sizeof(Globals));
+	Globals_init(me->globals, me->screen, me->room, me->font);
 
     me->rend = me->screen->rend;
 
 	me->sys = (SystemPtr) malloc(sizeof(System));
-    System_init(me->sys, me->screen);
+    System_init(me->sys, me->globals);
 
     me->event = (SDL_Event *) malloc(sizeof(SDL_Event));
-
-    me->room = (RoomPtr) malloc(sizeof(Room));
 
     me->cursor_src_rect = (SDL_Rect *) malloc(sizeof(SDL_Rect));
     me->cursor_dest_rect = (SDL_Rect *) malloc(sizeof(SDL_Rect));
 
     SDL_ShowCursor(SDL_DISABLE);
 
-	me->plain_cursor = System_load_sprite(
-		me->sys, "assets/images/interface/cursors/plain.png",
+	me->plain_cursor = Screen_load_sprite(
+		me->screen, "assets/images/interface/cursors/plain.png",
 		&me->cursor_src_rect->w, &me->cursor_src_rect->h
 	);
-	me->interact_cursor = System_load_sprite(
-		me->sys, "assets/images/interface/cursors/interact.png",
+	me->interact_cursor = Screen_load_sprite(
+		me->screen, "assets/images/interface/cursors/interact.png",
 		&me->cursor_dest_rect->w, &me->cursor_dest_rect->h
 	);
 	me->cursor_src_rect->x = 0;
@@ -88,8 +95,9 @@ void Game_prepare(GamePtr me) {
     EntityPtr player = System_add_entity(me->sys, "Micah");
     Entity_add_group(player, GROUP_PLAYERS);
     Entity_add_group(player, GROUP_WORLD);
+
     Entity_add_component(
-		player, MAPPED_COMPONENT, 3, 1.5f, 0.5f, ground_floor
+		player, MAPPED_COMPONENT, 3, 8.5f, 0.5f, ground_floor
 	);
     Entity_add_component(player, MOVE_COMPONENT, 0);
     Entity_add_component(player, JOURNEY_COMPONENT, 1, me->room);
@@ -156,8 +164,7 @@ void Game_prepare(GamePtr me) {
     Entity_add_group(bin, GROUP_WORLD);
     Entity_add_component(bin, MAPPED_COMPONENT, 3, 0.4f, 0.0f, ground_floor);
     SpriteComponentPtr sprite = (SpriteComponentPtr)Entity_add_component(
-		bin, SPRITE_COMPONENT, 2,
-		"assets/images/scenery/park/rubbish_bin.png", 1
+		bin, SPRITE_COMPONENT, 1, "assets/images/scenery/park/rubbish_bin.png"
 	);
     SpriteComponent_enable_scaling(sprite, true);
     ClickComponentPtr click = Entity_add_component(bin, CLICK_COMPONENT, 0);
@@ -190,8 +197,8 @@ void Game_update(GamePtr me) {
 	me->sys->hover_entity = NULL;
 
 	SDL_GetMouseState(&me->cursor_dest_rect->x, &me->cursor_dest_rect->y);
-	me->cursor_dest_rect->x /= 3;
-	me->cursor_dest_rect->y /= 3;
+	me->cursor_dest_rect->x /= me->screen->scale;
+	me->cursor_dest_rect->y /= me->screen->scale;
 }
 
 void Game_render(GamePtr me) {
@@ -216,6 +223,16 @@ void Game_render(GamePtr me) {
 
 	for (size_t i = 0; i < no_world_entities; i ++) {
 		Entity_draw(draw_order[i]);
+	}
+
+	for (int i = 0; i < me->font->no_text_blocks; i ++) {
+		TextBlockPtr text_block = me->font->text_blocks[i];
+		if (text_block->visible) {
+			SDL_RenderCopy(
+				me->screen->rend, text_block->image, text_block->rect,
+				text_block->dest_rect
+			);
+		}
 	}
 
 	SDL_Texture * cursor;
@@ -248,9 +265,11 @@ void Game_clean(GamePtr me) {
 void Game_click(GamePtr me) {
     int rc;
 
+    /* Finds the position of the mouse. */
 	int mouse_x = me->event->motion.x / me->screen->scale;
 	int mouse_y = me->event->motion.y / me->screen->scale;
 
+	/* Finds all the entities to be drawn and sorts them. */
 	EntityPtr * world_entities = System_get_group(me->sys, GROUP_WORLD);
 	size_t no_world_entities = System_get_group_size(me->sys, GROUP_WORLD);
 	EntityPtr * draw_order = (EntityPtr *) malloc(
@@ -259,9 +278,12 @@ void Game_click(GamePtr me) {
 	for (size_t i = 0; i < no_world_entities; i ++) {
 		draw_order[i] = world_entities[i];
 	}
-
 	quick_sort(draw_order, no_world_entities);
 
+	/**
+	 * Iterates over each entity, and if the mouse is hovering over the entity,
+	 * allows the entity to handle the event.
+     */
 	for (size_t i = no_world_entities - 1; (int)i >= 0; i --) {
 		if (Entity_has_component(draw_order[i], CLICK_COMPONENT)) {
 			ClickComponentPtr click_component = Entity_fetch_component(
@@ -274,87 +296,173 @@ void Game_click(GamePtr me) {
 		}
 	}
 
+	/* Finds the player entity/entities. */
 	EntityPtr * players = System_get_group(me->sys, GROUP_PLAYERS);
 	size_t no_players = System_get_group_size(me->sys, GROUP_PLAYERS);
 
+	/**
+	 * Begins searching for the most appropriate location to which the player
+	 * entity should travel.
+	 */
 	int no_plane = -1;
 	double chosen_x, chosen_y;
 	double chosen_height = -999999;
 	TilePtr chosen_tile = NULL;
+
+	/**
+	 * Iterates over each plane to see if it is a better match to the user's
+	 * command than the best plane found so far.
+	 */
 	for (int i = 0; i < me->room->no_planes; i ++) {
 		PlanePtr plane = me->room->planes[i];
+
+		/* Finds the y-coordinate of the mouse on the plane. */
     	double y = Plane_get_mapped_y(
 			plane, me->screen, mouse_x, mouse_y, &rc
 		);
+
+    	/* If no y-coordinate could be found, ignores the plane. */
     	if (rc != 0) {
     		continue;
     	}
+
+    	/* Finds the x-coordinate of the mouse on the plane. */
 		double x = Plane_get_mapped_x(plane, me->screen, mouse_x, y);
 		if (x < plane->min_x || x > plane->max_x) {
 			continue;
 		}
 
+		/* Finds the tile which the user clicked on. */
 		TilePtr tile = Plane_get_tile(plane, (int)x, (int)y);
 
+		/**
+		 * If the tile is unwalkable, it checks the nearest neighbouring tile
+		 * to the selected tile.
+		 */
 		if (!tile->walkable) {
+			/**
+			 * Finds whether the mouse is closer to selecting a horizontally
+			 * adjacent tile or a vertically adjacent tile.
+			 */
 			double close_x = pow(x - (int)x - 0.5, 2);
 			double close_y = pow(y - (int)y - 0.5, 2);
 			double other_x;
 			double other_y;
+
+			/* Considers the horizontally adjacent tile if it is closer. */
 			if (close_x >= close_y) {
+				/**
+				 * Uses the same y-coordinate as before. Only the x-coordinate
+				 * is changed.
+				 */
 				other_y = y;
-				if (x - (int)x <= 0.5 && (int)x > plane->min_x) {
+
+				/**
+				 * If the x-coordinate is on the left-hand side of the tile,
+				 * and the tile is not left of the border, chooses the tile.
+				 */
+				if (x - (int)x <= 0.5 && (int)x - 1 > plane->min_x) {
 					other_x = (double)(int)x;
 					tile = Plane_get_tile(plane, (int)x - 1, (int)y);
 				}
-				else if (x - (int)x > 0.5 && (int)x < plane->max_x) {
+
+				/**
+				 * If the x-coordinate is on the right-hand side of the tile,
+				 * and the tile is not right of the border, chooses the tile.
+				 */
+				else if (x - (int)x > 0.5 && (int)x + 1 < plane->max_x) {
 					other_x = (double)(int)x + 1;
 					tile = Plane_get_tile(plane, (int)x + 1, (int)y);
 				}
-				else {
-					continue;
-				}
-			}
-			else {
-				other_x = x;
-				if (y - (int)y <= 0.5 && (int)y > plane->min_y) {
-					other_y = (double)(int)y;
-					tile = Plane_get_tile(plane, (int)x, (int)y - 1);
-				}
-				else if (y - (int)y > 0.5 && (int)y < plane->max_y) {
-					other_y = (double)(int)y + 1;
-					tile = Plane_get_tile(plane, (int)x, (int)y + 1);
-				}
+
+				/**
+				 * Discards the plane if the tile is not placed
+				 * conveniently.
+				 */
 				else {
 					continue;
 				}
 			}
 
+			/* Considers the vertically adjacent tile if it is closer. */
+			else {
+				/**
+				 * Uses the same x-coordinate as before. Only the y-coordinate
+				 * is changed.
+				 */
+				other_x = x;
+
+				/**
+				 * If the y-coordinate is below the tile, and the tile is not
+				 * below the border, chooses the tile.
+				 */
+				if (y - (int)y <= 0.5 && (int)y - 1 > plane->min_y) {
+					other_y = (double)(int)y;
+					tile = Plane_get_tile(plane, (int)x, (int)y - 1);
+				}
+
+				/**
+				 * If the y-coordinate is above the tile, and the tile is not
+				 * above the border, chooses the tile.
+				 */
+				else if (y - (int)y > 0.5 && (int)y + 1 < plane->max_y) {
+					other_y = (double)(int)y + 1;
+					tile = Plane_get_tile(plane, (int)x, (int)y + 1);
+				}
+
+				/**
+				 * Discards the plane if the tile is not placed
+				 * conveniently.
+				 */
+				else {
+					continue;
+				}
+			}
+
+			/**
+			 * If the tile is walkable, walks to the modified position of the
+			 * mouse.
+			 */
 			if (tile->walkable) {
 				x = other_x;
 				y = other_y;
 			}
+
+			/* It the tile is not walkable, discards the tile. */
 			else {
 				continue;
 			}
 		}
 
+		/* Finds the position of the plane at the location chosen. */
 		double height = Plane_get_height(plane, x, y);
-		if (height <= chosen_height) {
-			continue;
-		}
 
-		no_plane = i;
-		chosen_x = x;
-		chosen_y = y;
-		chosen_height = height;
-		chosen_tile = tile;
+		/**
+		 * If the height of the plane is above the previously best-found plane
+		 * which accommodates the mouse position, uses the plane and the click
+		 * position.
+		 */
+		if (height > chosen_height) {
+			no_plane = i;
+			chosen_x = x;
+			chosen_y = y;
+			chosen_height = height;
+			chosen_tile = tile;;
+		}
 	}
 
+	/**
+	 * If no plane has been found which accommodates the event, discards the
+	 * mouse click.
+	 */
 	if (no_plane == -1) {
 		return;
 	}
 
+	/**
+	 * Commands each entity to journey to the mouse position (or modified mouse
+	 * mouse position.
+	 */
 	for (size_t i = 0; i < no_players; i ++) {
 		JourneyComponentPtr journey = Entity_fetch_component(
 			players[i], JOURNEY_COMPONENT

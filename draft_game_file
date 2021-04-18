@@ -1,0 +1,87 @@
+# Create the room.
+create room (
+    id="Home Lounge", focal_point_height=-200, scale_rate=0.05, tiles_x=10
+)
+create plane (
+    room="Home Lounge", id="Ground Floor", min_x=0, min_y=0, max_x=10,
+    max_y=5
+)
+set walkable (
+    plane="Ground Floor", tiles=[[9, 1], [9, 2], [9, 3], [9, 4]],
+    walkable=false
+)
+create plane (
+    room="Home Lounge", id="Ramp", min_x=9, min_y=1, max_x=10,
+    max_y=4, h=-35, h_x=0, h_y=35
+)
+create plane (
+    room="Home Lounge", id="Upper Floor", min_x=0, min_y=0, max_x=10,
+    max_y=5, h=105
+)
+set walkable (
+    plane="Upper Floor", tiles=[[9, 1], [9, 2], [9, 3], [9, 4]],
+    walkable=false
+)
+join tiles (tiles=[
+    [["Ground Floor", 9, 0, "Ramp", 9, 1], ["Upper Floor", 9, 4, "Ramp", 9, 3]]
+])
+
+# Create the character
+create entity (id="Micah")
+entity associate (id="Micah", ["Players", "World"])
+entity component (
+	id="Micah", type="mapped", x=1.5, y=0.5, plane="Ground Floor"
+)
+entity component (id="Micah", type="move")
+entity component (id="Micah", type="journey")
+entity component (
+	id="Micah", type="animate", path="assets/images/characters/micah"
+)
+animate load (id="Micah", animations=[
+    ["stand forwards", "front.png"],
+    ["stand backwards", "back.png"],
+    ["stand left", "left.png"],
+    ["stand right", "right.png"],
+    ["walk forwards 1", "front_walk_1.png"],
+    ["walk forwards 2", "front_walk_2.png"],
+    ["walk forwards 3", "front_walk_3.png"],
+    ["walk forwards 4", "front_walk_4.png"],
+    ["walk forwards 5", "front_walk_5.png"],
+    ["walk forwards 6", "front_walk_6.png"],
+    ["walk backwards 1", "back_walk_1.png"],
+    ["walk backwards 2", "back_walk_2.png"],
+    ["walk backwards 3", "back_walk_3.png"],
+    ["walk backwards 4", "back_walk_4.png"],
+    ["walk backwards 5", "back_walk_5.png"],
+    ["walk backwards 6", "back_walk_6.png"],
+    ["walk left 1", "left_walk_1.png"],
+    ["walk left 2", "left_walk_2.png"],
+    ["walk left 3", "left_walk_3.png"],
+    ["walk left 4", "left_walk_4.png"],
+    ["walk left 5", "left_walk_5.png"],
+    ["walk left 6", "left_walk_6.png"],
+    ["walk right 1", "right_walk_1.png"],
+    ["walk right 2", "right_walk_2.png"],
+    ["walk right 3", "right_walk_3.png"],
+    ["walk right 4", "right_walk_4.png"],
+    ["walk right 5", "right_walk_5.png"],
+    ["walk right 6", "right_walk_6.png"],
+])
+
+# Create an interactable object.
+create entity (id="rubbish bin")
+entity associate (id="rubbish bin", ["World"])
+entity component (
+	id="rubbish bin", type="mapped", x=0.4, y=0.0, plane="Ground Floor"
+)
+entity component (
+	id="rubbish bin", type="sprite",
+	path="assets/images/scenery/park/rubbish_bin.png"
+)
+sprite scalable(id="rubbish bin", scalable=true)
+entity component (id="rubbish bin", type="click")
+click interact (
+	id="rubbish bin", plane="Ground Floor", x=1.0, y=0.1, direction="left dir"
+)
+set walkable (plane="Ground Floor", tiles=[[1, 0]], walkable=false)
+entity component (id="rubbish bin", type="interact")

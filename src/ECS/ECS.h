@@ -26,6 +26,7 @@
 
 #include "SDL2/SDL.h"
 
+#include "../objects/globals.h"
 #include "../groups.h"
 #include "../objects/graphics.h"
 
@@ -102,11 +103,12 @@ struct System {
     int no_entities;
     EntityPtr * grouped_entities[MAX_GROUPS];
     size_t grouped_entity_sizes[MAX_GROUPS];
-	ScreenPtr screen;
+	GlobalsPtr globals;
+    ScreenPtr screen;
 	EntityPtr hover_entity;
 };
 
-void System_init(SystemPtr me, ScreenPtr screen);
+void System_init(SystemPtr me, GlobalsPtr globals);
 EntityPtr System_add_entity(SystemPtr me, const char * id);
 void System_add_to_group(SystemPtr me, EntityPtr entity, Group group);
 EntityPtr * System_get_group(SystemPtr me, Group group);
@@ -114,8 +116,5 @@ size_t System_get_group_size(SystemPtr me, Group group);
 void System_update(SystemPtr me);
 void System_draw(SystemPtr me);
 void System_refresh(SystemPtr me);
-SDL_Texture * System_load_sprite(
-	SystemPtr me, const char * path, int * width, int * height
-);
 
 #endif

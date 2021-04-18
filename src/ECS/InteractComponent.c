@@ -33,7 +33,11 @@ ComponentPtr InteractComponent_init(
 	me->click = (ClickComponentPtr)Entity_fetch_component(
 		entity, CLICK_COMPONENT
 	);
-	me->name = va_arg(*args, const char *);
+	me->hover_text = Font_add_text(
+		entity->system->globals->font, va_arg(*args, const char *)
+	);
+	TextBlock_position(me->hover_text, 0, 0, ANCHOR_TOP_LEFT);
+	me->hover_text->visible = true;
 
 	return me_component;
 }
@@ -47,14 +51,19 @@ void InteractComponent_draw(void * me_void) {
 
 	int x, y;
 	SDL_GetMouseState(&x, &y);
-	x /= 3;
-	y /= 3;
+
+	x /= me_component->entity->system->screen->scale;
+	y /= me_component->entity->system->screen->scale;
 
 	bool is_hovering = ClickComponent_targeting(me->click, x, y);
+	me->hover_text->visible = is_hovering;
 	if (is_hovering) {
+		TextBlock_position(me->hover_text, x, y - 10, ANCHOR_BOTTOM_CENTRE);
 		me_component->entity->system->hover_entity = me_component->entity;
 	}
 }
 
 void InteractComponent_delete(void * me_void) {
+	InteractComponentPtr me = (InteractComponentPtr)me_void;
+	TextBlock_destroy(me->hover_text);
 }

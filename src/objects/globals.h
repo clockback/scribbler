@@ -18,28 +18,23 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __GRAPHICS_H__
-#define __GRAPHICS_H__
+#ifndef __GLOBALS_H__
+#define __GLOBALS_H__
 
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_image.h"
+#include "./graphics.h"
+#include "./room.h"
+#include "./font.h"
 
 typedef struct {
-    SDL_Window * window;
-    SDL_Renderer * rend;
-    SDL_Texture * main_tex;
-    SDL_Rect * src_rect;
-    SDL_Rect * dest_rect;
-    int width;
-    int height;
-    int scale;
-} Screen;
+    ScreenPtr screen;
+    RoomPtr room;
+    FontPtr font;
+} Globals;
 
-typedef Screen * ScreenPtr;
+typedef Globals * GlobalsPtr;
 
-void Screen_init(ScreenPtr me, int width, int height, int scale);
-SDL_Texture * Screen_load_sprite(
-	ScreenPtr me, const char * path, int * width, int * height
+void Globals_init(
+	GlobalsPtr me, ScreenPtr screen, RoomPtr room, FontPtr font
 );
 
 #endif

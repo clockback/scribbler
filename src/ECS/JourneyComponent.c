@@ -84,6 +84,7 @@ void JourneyComponent_update(void * me_void) {
 			me->path_planes, me->path_length * sizeof(PlanePtr)
 		);
 		me->mapped->plane = me->path_planes[0];
+		me->mapped->tile = me->path_tiles[0];
 	}
 
 	if (
@@ -248,6 +249,7 @@ void JourneyComponent_dijkstra(JourneyComponentPtr me) {
 	int * ancestors_i = (int *) malloc(
 		(no_unreached + 1) * sizeof(int)
 	);
+
 
 	/* Initializes incomplete paths for every tile not yet reached. */
 	for (int i = 1; i < no_reached + no_unreached; i ++) {

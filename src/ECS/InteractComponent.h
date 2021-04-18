@@ -23,11 +23,12 @@
 
 #include "ECS.h"
 #include "ClickComponent.h"
+#include "../objects/font.h"
 
 typedef struct {
 	Component base_component;
     ClickComponentPtr click;
-    const char * name;
+    TextBlockPtr hover_text;
 } InteractComponent;
 
 typedef InteractComponent * InteractComponentPtr;

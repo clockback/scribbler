@@ -26,14 +26,18 @@
 #include "./graphics.h"
 #include "../ECS/ECS.h"
 #include "./room.h"
+#include "./font.h"
+#include "./globals.h"
 
 typedef struct {
-    Screen * screen;
+    ScreenPtr screen;
     SDL_Renderer * rend;
     SDL_Event * event;
     bool running;
     SystemPtr sys;
     RoomPtr room;
+    FontPtr font;
+    GlobalsPtr globals;
 
     SDL_Texture * plain_cursor;
     SDL_Texture * interact_cursor;

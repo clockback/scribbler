@@ -41,10 +41,7 @@ ComponentPtr MoveComponent_init(void * me_void, EntityPtr entity, va_list * args
 
 void MoveComponent_update(void * me_void) {
 	MoveComponentPtr me = (MoveComponentPtr)me_void;
-	EntityPtr entity = ((ComponentPtr)me)->entity;
-	MappedComponentPtr mapped = Entity_fetch_component(
-		entity, MAPPED_COMPONENT
-	);
+	MappedComponentPtr mapped = me->mapped;
 	mapped->x += me->vx;
 	mapped->y += me->vy;
 	if (
@@ -54,6 +51,7 @@ void MoveComponent_update(void * me_void) {
 		mapped->tile = Plane_get_tile(
 			mapped->plane, (int)mapped->x, (int)mapped->y
 		);
+		mapped->plane = mapped->tile->plane;
 	}
 }
 

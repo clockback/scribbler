@@ -31,9 +31,9 @@ ComponentPtr SpriteComponent_init(
 	ComponentPtr me_component = (ComponentPtr)me;
 	Component_init(me_component, entity, SPRITE_COMPONENT);
 
-	me->image = System_load_sprite(
-		me_component->entity->system, va_arg(*args, const char *), &me->width,
-		&me->height
+	me->image = Screen_load_sprite(
+		me_component->entity->system->screen, va_arg(*args, const char *),
+		&me->width, &me->height
 	);
 
 	me->scale = 1;

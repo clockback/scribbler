@@ -230,8 +230,9 @@ void AnimateComponent_load_sprite(
 	strcat(full_filename, filename);
 
 	int width, height;
-	me->images[animation] = System_load_sprite(
-		((ComponentPtr)me)->entity->system, full_filename, &width, &height
+	me->images[animation] = Screen_load_sprite(
+		((ComponentPtr)me)->entity->system->screen, full_filename, &width,
+		&height
 	);
 
 	me->source_rects[animation] = (SDL_Rect *) malloc(sizeof(SDL_Rect));
