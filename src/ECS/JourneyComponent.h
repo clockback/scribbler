@@ -65,4 +65,6 @@ void JourneyComponent_set_end_direction(
 	JourneyComponentPtr me, size_t direction
 );
 
+directions get_direction(char * str_direction);
+
 #endif

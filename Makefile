@@ -6,6 +6,7 @@ scribbler:
 		src/objects/room.c \
 		src/objects/font.c \
 		src/objects/globals.c \
+		src/objects/IoHandler.c \
 		src/ECS/Components.c \
 		src/ECS/ECS.c \
 		src/ECS/MoveComponent.c \
@@ -19,6 +20,7 @@ scribbler:
 		-lSDL2main \
 		-lSDL2 \
 		-lSDL2_image \
+		-liovmall \
 		-ldl \
 		-lm \
 		-Wall \

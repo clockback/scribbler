@@ -23,6 +23,7 @@
 #include "./room.h"
 #include "./globals.h"
 #include "../ECS/Components.h"
+#include "./IoHandler.h"
 
 void Game_init(GamePtr me, int screen_width, int screen_height) {
 	me->running = true;
@@ -30,7 +31,7 @@ void Game_init(GamePtr me, int screen_width, int screen_height) {
 	me->screen = (ScreenPtr) malloc(sizeof(Screen));
     Screen_init(me->screen, screen_width, screen_height, 2);
 
-    me->room = (RoomPtr) malloc(sizeof(Room));
+    me->rooms = (RoomPtr *) malloc(sizeof(RoomPtr));
 
     me->font = (FontPtr) malloc(sizeof(Font));
     Font_init(me->font, "assets/images/glyphs", me->screen, 100);
@@ -44,6 +45,8 @@ void Game_init(GamePtr me, int screen_width, int screen_height) {
     System_init(me->sys, me->globals);
 
     me->event = (SDL_Event *) malloc(sizeof(SDL_Event));
+
+    Game_prepare(me);
 
     me->cursor_src_rect = (SDL_Rect *) malloc(sizeof(SDL_Rect));
     me->cursor_dest_rect = (SDL_Rect *) malloc(sizeof(SDL_Rect));
@@ -62,117 +65,17 @@ void Game_init(GamePtr me, int screen_width, int screen_height) {
 	me->cursor_src_rect->y = 0;
 	me->cursor_dest_rect->x = 0;
 	me->cursor_dest_rect->y = 0;
-
-    Game_prepare(me);
 }
 
 void Game_prepare(GamePtr me) {
-    // Creates a room.
-    Room_init(me->room, "Home Lounge", -200, 0.05, 10);
-    PlanePtr ground_floor = Room_add_plane(me->room, 0, 0, 10, 5, 0, 0, 0);
-    Tile_set_walkable(Plane_get_tile(ground_floor, 9, 1), false);
-    Tile_set_walkable(Plane_get_tile(ground_floor, 9, 2), false);
-    Tile_set_walkable(Plane_get_tile(ground_floor, 9, 3), false);
-    Tile_set_walkable(Plane_get_tile(ground_floor, 9, 4), false);
-    PlanePtr ramp = Room_add_plane(me->room, 9, 1, 10, 4, -35, 0, 35);
-    PlanePtr upper_floor = Room_add_plane(me->room, 0, 0, 10, 5, 105, 0, 0);
-    Tile_set_walkable(Plane_get_tile(upper_floor, 9, 0), false);
-    Tile_set_walkable(Plane_get_tile(upper_floor, 9, 1), false);
-    Tile_set_walkable(Plane_get_tile(upper_floor, 9, 2), false);
-    Tile_set_walkable(Plane_get_tile(upper_floor, 9, 3), false);
+	IoHandlerPtr io = (IoHandlerPtr) malloc(sizeof(IoHandler));
+	IoHandler_init(io, me, "src/io/utils.io");
+	IoHandler_load_file(io, "src/io/game.io");
+	IoHandler_get_rooms(io, me);
+	IoHandler_get_planes(io, me);
+	IoHandler_get_entities(io, me);
 
-    Room_join_tiles(
-		me->room, Plane_get_tile(ground_floor, 9, 0),
-		Plane_get_tile(ramp, 9, 1)
-	);
-
-    Room_join_tiles(
-		me->room, Plane_get_tile(upper_floor, 9, 4),
-		Plane_get_tile(ramp, 9, 3)
-	);
-
-    // Creates a player entity.
-    EntityPtr player = System_add_entity(me->sys, "Micah");
-    Entity_add_group(player, GROUP_PLAYERS);
-    Entity_add_group(player, GROUP_WORLD);
-
-    Entity_add_component(
-		player, MAPPED_COMPONENT, 3, 8.5f, 0.5f, ground_floor
-	);
-    Entity_add_component(player, MOVE_COMPONENT, 0);
-    Entity_add_component(player, JOURNEY_COMPONENT, 1, me->room);
-    AnimateComponentPtr animate = Entity_add_component(
-		player, ANIMATE_COMPONENT, 1, "assets/images/characters/micah"
-	);
-
-    AnimateComponent_load_sprite(animate, STAND_FORWARDS, "front.png");
-    AnimateComponent_load_sprite(animate, STAND_BACKWARDS, "back.png");
-    AnimateComponent_load_sprite(animate, STAND_LEFT, "left.png");
-    AnimateComponent_load_sprite(animate, STAND_RIGHT, "right.png");
-    AnimateComponent_load_sprite(
-		animate, WALK_FORWARDS_1, "front_walk_1.png"
-	);
-    AnimateComponent_load_sprite(
-		animate, WALK_FORWARDS_2, "front_walk_2.png"
-	);
-    AnimateComponent_load_sprite(
-		animate, WALK_FORWARDS_3, "front_walk_3.png"
-	);
-    AnimateComponent_load_sprite(
-		animate, WALK_FORWARDS_4, "front_walk_4.png"
-	);
-    AnimateComponent_load_sprite(
-		animate, WALK_FORWARDS_5, "front_walk_5.png"
-	);
-    AnimateComponent_load_sprite(
-		animate, WALK_FORWARDS_6, "front_walk_6.png"
-	);
-    AnimateComponent_load_sprite(
-		animate, WALK_BACKWARDS_1, "back_walk_1.png"
-	);
-    AnimateComponent_load_sprite(
-		animate, WALK_BACKWARDS_2, "back_walk_2.png"
-	);
-    AnimateComponent_load_sprite(
-		animate, WALK_BACKWARDS_3, "back_walk_3.png"
-	);
-    AnimateComponent_load_sprite(
-		animate, WALK_BACKWARDS_4, "back_walk_4.png"
-	);
-    AnimateComponent_load_sprite(
-		animate, WALK_BACKWARDS_5, "back_walk_5.png"
-	);
-    AnimateComponent_load_sprite(
-		animate, WALK_BACKWARDS_6, "back_walk_6.png"
-	);
-    AnimateComponent_load_sprite(animate, WALK_LEFT_1, "left_walk_1.png");
-    AnimateComponent_load_sprite(animate, WALK_LEFT_2, "left_walk_2.png");
-    AnimateComponent_load_sprite(animate, WALK_LEFT_3, "left_walk_3.png");
-    AnimateComponent_load_sprite(animate, WALK_LEFT_4, "left_walk_4.png");
-    AnimateComponent_load_sprite(animate, WALK_LEFT_5, "left_walk_5.png");
-    AnimateComponent_load_sprite(animate, WALK_LEFT_6, "left_walk_6.png");
-    AnimateComponent_load_sprite(animate, WALK_RIGHT_1, "right_walk_1.png");
-    AnimateComponent_load_sprite(animate, WALK_RIGHT_2, "right_walk_2.png");
-    AnimateComponent_load_sprite(animate, WALK_RIGHT_3, "right_walk_3.png");
-    AnimateComponent_load_sprite(animate, WALK_RIGHT_4, "right_walk_4.png");
-    AnimateComponent_load_sprite(animate, WALK_RIGHT_5, "right_walk_5.png");
-    AnimateComponent_load_sprite(animate, WALK_RIGHT_6, "right_walk_6.png");
-    AnimateComponent_use_sprite(animate, STAND_FORWARDS);
-
-    // Creates a player entity.
-    EntityPtr bin = System_add_entity(me->sys, "rubbish bin");
-    Entity_add_group(bin, GROUP_WORLD);
-    Entity_add_component(bin, MAPPED_COMPONENT, 3, 0.4f, 0.0f, ground_floor);
-    SpriteComponentPtr sprite = (SpriteComponentPtr)Entity_add_component(
-		bin, SPRITE_COMPONENT, 1, "assets/images/scenery/park/rubbish_bin.png"
-	);
-    SpriteComponent_enable_scaling(sprite, true);
-    ClickComponentPtr click = Entity_add_component(bin, CLICK_COMPONENT, 0);
-    ClickComponent_set_interact_point(
-		click, Plane_get_tile(ground_floor, 1, 0), 1.0, 0.1, LEFT_DIR
-    );
-    Tile_set_walkable(Plane_get_tile(ground_floor, 0, 0), false);
-    Entity_add_component(bin, INTERACT_COMPONENT, 1, "Rubbish bin");
+	IoHandler_destroy(io);
 }
 
 void Game_handle_events(GamePtr me) {
@@ -561,6 +464,27 @@ void quick_sort(EntityPtr * draw_order, const int length) {
 				partition_size[i - 1] = partition_size[i];
 			}
 		}
-
 	}
+}
+
+RoomPtr Game_find_room(GamePtr me, const char * name) {
+	for (size_t i = 0; i < me->no_rooms; i ++) {
+		RoomPtr room = me->rooms[i];
+		if (strcmp(name, room->name) == 0) {
+			return room;
+		}
+	}
+	printf("Error. Room '%s' not found!\n", name);
+	exit(-1);
+}
+
+EntityPtr Game_find_entity(GamePtr me, const char * name) {
+	for (size_t i = 0; i < me->sys->no_entities; i ++) {
+		EntityPtr entity = me->sys->entities[i];
+		if (strcmp(name, entity->id) == 0) {
+			return entity;
+		}
+	}
+	printf("Error. Entity '%s' not found!\n", name);
+	exit(-1);
 }

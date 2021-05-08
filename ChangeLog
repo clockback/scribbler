@@ -5,6 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+## [0.1.0] - 2021-05-08
+### Added
+- Implementing Io language, such that the game code is separated from the
+  engine itself. A utils module is run, which creates all the core
+  functionality for writing a game file. The game file itself defines all
+  rooms, planes, and entities on the screen.
+- Allowing apostrophes, hyphens, and speech marks in displayed text.
+
+### Changed
+- Reducing the width of the glyph for the letter 'r'.
+- Text maximum width now takes effect. It will wrap text with a centered
+  justification. Words that single-handedly exceed the width limit cause the
+  game to raise an error.
+- Increasing precision of Room scale-rate.
+
 ## [0.0.7] - 2021-04-18
 ### Added
 - Creating .PNG glyphs for a font.

@@ -81,11 +81,11 @@ struct Entity {
 	SystemPtr system;
 	GroupBitSet in_group;
 	ScreenPtr screen;
-	const char * id;
+	char * id;
 };
 
 void Entity_init(
-	EntityPtr me, SystemPtr SystemPtr, ScreenPtr screen, const char * id
+	EntityPtr me, SystemPtr SystemPtr, ScreenPtr screen, char * id
 );
 void * Entity_add_component(EntityPtr me, ComponentID type, int no_args, ...);
 void * Entity_fetch_component(EntityPtr me, ComponentID type);
@@ -109,7 +109,7 @@ struct System {
 };
 
 void System_init(SystemPtr me, GlobalsPtr globals);
-EntityPtr System_add_entity(SystemPtr me, const char * id);
+EntityPtr System_add_entity(SystemPtr me, char * id);
 void System_add_to_group(SystemPtr me, EntityPtr entity, Group group);
 EntityPtr * System_get_group(SystemPtr me, Group group);
 size_t System_get_group_size(SystemPtr me, Group group);

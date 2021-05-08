@@ -208,6 +208,15 @@ void Font_load_character(FontPtr me, glyph i, const char * path) {
     case QUESTION_MARK:
         strcat(full_filename, "question_mark");
         break;
+    case HYPHEN:
+        strcat(full_filename, "hyphen");
+        break;
+    case APOSTROPHE:
+        strcat(full_filename, "apostrophe");
+        break;
+    case SPEECH_MARKS:
+        strcat(full_filename, "speech_marks");
+        break;
     default:
     	printf("Attempt to load unknown glyph, %d!\n", i);
     	exit(-1);
@@ -229,10 +238,10 @@ SDL_Texture * Font_render_text(
 	FontPtr me, const char * text, SDL_Rect * rect
 ) {
 	glyph glyph_text[1000];
-	int total_width = 0;
-	int total_height = 0;
+	int no_chars = 0;
 
 	for (int i = 0; text[i] != '\0'; i ++) {
+		no_chars ++;
 		glyph g;
 		switch (text[i]) {
         case 'A':
@@ -403,46 +412,140 @@ SDL_Texture * Font_render_text(
         case '?':
             g = QUESTION_MARK;
             break;
+        case '-':
+            g = HYPHEN;
+            break;
+        case '\'':
+        	g = APOSTROPHE;
+        	break;
+        case '"':
+        	g = SPEECH_MARKS;
+        	break;
         default:
         	printf("Attempt to render unknown glyph, %d!\n", i);
         	exit(-1);
 		}
 		glyph_text[i] = g;
-		total_width += me->glyph_rects[g]->w;
-		if (total_height < me->glyph_rects[g]->h) {
-			total_height = me->glyph_rects[g]->h;
+	}
+
+	int no_line = 0;
+	glyph ** all_lines = (glyph **) malloc(sizeof(glyph *));
+	int * sizes = (int *) malloc(sizeof(int));
+	int * widths = (int *) malloc(sizeof(int));
+
+	int width = 0;
+	int additional_width = 0;
+	int pos_space = -1;
+	int last_word = 0;
+
+	int max_width = 0;
+	int total_height = 0;
+
+	for (int i = 0; text[i] != '\0'; i++) {
+		glyph g = glyph_text[i];
+		if (g == WHITE_SPACE) {
+			pos_space = i;
+			width += additional_width;
+			additional_width = 0;
 		}
+
+		additional_width += me->glyph_rects[g]->w;
+		if (width + additional_width > me->max_width) {
+			if (additional_width > me->max_width) {
+				printf(
+					"Failed to draw text '%s'. Contains oversized word.\n",
+					text
+				);
+				exit(-1);
+			}
+			widths = (int *) realloc(widths, (no_line + 2) * sizeof(int));
+			sizes = (int *) realloc(sizes, (no_line + 2) * sizeof(int));
+			all_lines = (glyph **) realloc(
+				all_lines, (no_line + 2) * sizeof(glyph *)
+			);
+
+			all_lines[no_line] = (glyph *) malloc(
+				(pos_space - last_word) * sizeof(glyph)
+			);
+
+			widths[no_line] = width;
+			sizes[no_line] = pos_space - last_word;
+
+			for (int j = last_word; j < pos_space; j ++) {
+				all_lines[no_line][j - last_word] = glyph_text[j];
+			}
+			no_line ++;
+			width = 0;
+			last_word = pos_space + 1;
+			pos_space = -1;
+		}
+	}
+
+	if (text[pos_space + 1] != '\0') {
+		widths = (int *) realloc(widths, (no_line + 2) * sizeof(int));
+		sizes = (int *) realloc(sizes, (no_line + 2) * sizeof(int));
+		all_lines = (glyph **) realloc(
+			all_lines, (no_line + 2) * sizeof(glyph *)
+		);
+		all_lines[no_line] = (glyph *) malloc(
+			(no_chars - last_word) * sizeof(glyph)
+		);
+
+		widths[no_line] = width + additional_width;
+		sizes[no_line] = no_chars - last_word;
+		for (int j = last_word; text[j] != '\0'; j ++) {
+			all_lines[no_line][j - last_word] = glyph_text[j];
+		}
+	}
+	for (int i = 0; i <= no_line; i ++) {
+		if (max_width < widths[i]) {
+			max_width = widths[i];
+		}
+		total_height += 15;
 	}
 
 	SDL_Texture * image = SDL_CreateTexture(
 		me->screen->rend, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
-		total_width, total_height
+		max_width, total_height
 	);
 	SDL_SetTextureBlendMode(image, SDL_BLENDMODE_BLEND);
 
-	rect->w = total_width;
+	rect->w = max_width;
 	rect->h = total_height;
 	rect->x = 0;
 	rect->y = 0;
 
     SDL_SetRenderTarget(me->screen->rend, image);
 
-    int x = 0;
+    int h = 0;
+    for (int i = 0; i <= no_line; i ++) {
+        int x = 0;
+    	for (int j = 0; j < sizes[i]; j ++) {
+    		glyph g = all_lines[i][j];
+    		SDL_Rect rend_pos;
+    		rend_pos.x = x + max_width / 2 - widths[i] / 2;
+    		rend_pos.y = h;
+    		rend_pos.w = me->glyph_rects[g]->w;
+    		rend_pos.h = me->glyph_rects[g]->h;
+    		x += rend_pos.w;
+
+    		SDL_RenderCopy(
+    			me->screen->rend, me->glyph_images[g], me->glyph_rects[g],
+    			&rend_pos
+    		);
+    	}
+        h += 15;
+    }
 
 	for (int i = 0; text[i] != '\0'; i ++) {
-		glyph g = glyph_text[i];
-		SDL_Rect rend_pos;
-		rend_pos.x = x;
-		rend_pos.y = 0;
-		rend_pos.w = me->glyph_rects[g]->w;
-		rend_pos.h = me->glyph_rects[g]->h;
-		x += rend_pos.w;
-
-		SDL_RenderCopy(
-			me->screen->rend, me->glyph_images[g], me->glyph_rects[g],
-			&rend_pos
-		);
 	}
+
+	for (int i = 0; i <= no_line; i ++) {
+		free(all_lines[i]);
+	}
+	free(widths);
+	free(sizes);
+	free(all_lines);
 
 	return image;
 }

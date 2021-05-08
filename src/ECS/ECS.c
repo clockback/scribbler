@@ -50,16 +50,15 @@ void Component_delete(ComponentPtr me) {
 }
 
 
-void Entity_init(
-	EntityPtr me, SystemPtr system, ScreenPtr screen, const char * id
-) {
+void Entity_init(EntityPtr me, SystemPtr system, ScreenPtr screen, char * id) {
 	me->active = true;
 	me->system = system;
 	for (ComponentID i = 0; i < MAX_COMPONENTS; i ++) {
 		me->has_component[i] = false;
 	}
 	me->screen = screen;
-	me->id = id;
+	me->id = (char *) malloc(strlen(id) * sizeof(char));
+	strcpy(me->id, id);
 }
 
 void * Entity_add_component(EntityPtr me, ComponentID type, int no_args, ...) {
@@ -137,7 +136,10 @@ void System_init(SystemPtr me, GlobalsPtr globals) {
 	init_components();
 
     me->no_entities = 0;
-    me->entities = (EntityPtr*) malloc(sizeof(EntityPtr));
+    me->entities = (EntityPtr*) malloc(0);
+	me->entities = (EntityPtr *) realloc(
+		me->entities, (me->no_entities + 1) * sizeof(EntityPtr)
+	);
     for (size_t i = 0; i < MAX_GROUPS; i ++) {
     	me->grouped_entities[i] = (EntityPtr*) malloc(sizeof(EntityPtr));
     	me->grouped_entity_sizes[i] = 0;
@@ -147,7 +149,10 @@ void System_init(SystemPtr me, GlobalsPtr globals) {
     me->globals = globals;
 }
 
-EntityPtr System_add_entity(SystemPtr me, const char * id) {
+EntityPtr System_add_entity(SystemPtr me, char * id) {
+	me->entities = (EntityPtr *) realloc(
+		me->entities, (me->no_entities + 1) * sizeof(EntityPtr)
+	);
 	EntityPtr entity = (EntityPtr) malloc(sizeof(Entity));
 	me->entities[me->no_entities] = entity;
 	me->no_entities ++;

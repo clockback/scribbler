@@ -85,6 +85,9 @@ typedef enum {
     FULL_STOP,
     EXCLAMATION_MARK,
     QUESTION_MARK,
+    HYPHEN,
+    APOSTROPHE,
+    SPEECH_MARKS,
     MAX_GLYPHS
 } glyph;
 

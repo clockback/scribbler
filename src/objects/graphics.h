@@ -39,7 +39,7 @@ typedef Screen * ScreenPtr;
 
 void Screen_init(ScreenPtr me, int width, int height, int scale);
 SDL_Texture * Screen_load_sprite(
-	ScreenPtr me, const char * path, int * width, int * height
+	ScreenPtr me, char * path, int * width, int * height
 );
 
 #endif

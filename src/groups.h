@@ -21,10 +21,10 @@
 #ifndef __GROUPS_H__
 #define __GROUPS_H__
 
-enum groupLabels {
+typedef enum {
 	GROUP_PLAYERS,
 	GROUP_WORLD,
 	MAX_GROUPS
-};
+} group_type;
 
 #endif

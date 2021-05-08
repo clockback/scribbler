@@ -35,7 +35,6 @@ ComponentPtr AnimateComponent_init(
 	);
 
 	me->directory = va_arg(*args, const char *);
-	me->scale = 1;
 	me->current = STAND_FORWARDS;
 	me->display = true;
 	me->i = 0;
@@ -222,7 +221,7 @@ void AnimateComponent_delete(void * me_void) {
 }
 
 void AnimateComponent_load_sprite(
-	AnimateComponentPtr me, size_t animation, const char * filename
+	AnimateComponentPtr me, size_t animation, char * filename
 ) {
 	char full_filename[100];
 	strcpy(full_filename, me->directory);
@@ -266,4 +265,97 @@ void AnimateComponent_enable_scaling(AnimateComponentPtr me, bool scale) {
 		me->scale = 1.0f;
 	}
 	me->disable_scaling = !scale;
+}
+
+animation_frames get_animation_key(char * str_key) {
+	if (strcmp(str_key, "STAND_FORWARDS") == 0) {
+		return STAND_FORWARDS;
+	}
+	else if (strcmp(str_key, "STAND_BACKWARDS") == 0) {
+		return STAND_BACKWARDS;
+	}
+	else if (strcmp(str_key, "STAND_LEFT") == 0) {
+		return STAND_LEFT;
+	}
+	else if (strcmp(str_key, "STAND_RIGHT") == 0) {
+		return STAND_RIGHT;
+	}
+	else if (strcmp(str_key, "WALK_FORWARDS_1") == 0) {
+		return WALK_FORWARDS_1;
+	}
+	else if (strcmp(str_key, "WALK_FORWARDS_2") == 0) {
+		return WALK_FORWARDS_2;
+	}
+	else if (strcmp(str_key, "WALK_FORWARDS_3") == 0) {
+		return WALK_FORWARDS_3;
+	}
+	else if (strcmp(str_key, "WALK_FORWARDS_4") == 0) {
+		return WALK_FORWARDS_4;
+	}
+	else if (strcmp(str_key, "WALK_FORWARDS_5") == 0) {
+		return WALK_FORWARDS_5;
+	}
+	else if (strcmp(str_key, "WALK_FORWARDS_6") == 0) {
+		return WALK_FORWARDS_6;
+	}
+	else if (strcmp(str_key, "WALK_BACKWARDS_1") == 0) {
+		return WALK_BACKWARDS_1;
+	}
+	else if (strcmp(str_key, "WALK_BACKWARDS_2") == 0) {
+		return WALK_BACKWARDS_2;
+	}
+	else if (strcmp(str_key, "WALK_BACKWARDS_3") == 0) {
+		return WALK_BACKWARDS_3;
+	}
+	else if (strcmp(str_key, "WALK_BACKWARDS_4") == 0) {
+		return WALK_BACKWARDS_4;
+	}
+	else if (strcmp(str_key, "WALK_BACKWARDS_5") == 0) {
+		return WALK_BACKWARDS_5;
+	}
+	else if (strcmp(str_key, "WALK_BACKWARDS_6") == 0) {
+		return WALK_BACKWARDS_6;
+	}
+	else if (strcmp(str_key, "WALK_LEFT_1") == 0) {
+		return WALK_LEFT_1;
+	}
+	else if (strcmp(str_key, "WALK_LEFT_2") == 0) {
+		return WALK_LEFT_2;
+	}
+	else if (strcmp(str_key, "WALK_LEFT_3") == 0) {
+		return WALK_LEFT_3;
+	}
+	else if (strcmp(str_key, "WALK_LEFT_4") == 0) {
+		return WALK_LEFT_4;
+	}
+	else if (strcmp(str_key, "WALK_LEFT_5") == 0) {
+		return WALK_LEFT_5;
+	}
+	else if (strcmp(str_key, "WALK_LEFT_6") == 0) {
+		return WALK_LEFT_6;
+	}
+	else if (strcmp(str_key, "WALK_RIGHT_1") == 0) {
+		return WALK_RIGHT_1;
+	}
+	else if (strcmp(str_key, "WALK_RIGHT_2") == 0) {
+		return WALK_RIGHT_2;
+	}
+	else if (strcmp(str_key, "WALK_RIGHT_3") == 0) {
+		return WALK_RIGHT_3;
+	}
+	else if (strcmp(str_key, "WALK_RIGHT_4") == 0) {
+		return WALK_RIGHT_4;
+	}
+	else if (strcmp(str_key, "WALK_RIGHT_5") == 0) {
+		return WALK_RIGHT_5;
+	}
+	else if (strcmp(str_key, "WALK_RIGHT_6") == 0) {
+		return WALK_RIGHT_6;
+	}
+	else {
+		printf(
+			"Error: does not recognize animation token '%s'\n", str_key
+		);
+		exit(-1);
+	}
 }

@@ -28,6 +28,7 @@
 #include "./room.h"
 #include "./font.h"
 #include "./globals.h"
+#include "io/IoState.h"
 
 typedef struct {
     ScreenPtr screen;
@@ -36,6 +37,8 @@ typedef struct {
     bool running;
     SystemPtr sys;
     RoomPtr room;
+    size_t no_rooms;
+    RoomPtr * rooms;
     FontPtr font;
     GlobalsPtr globals;
 
@@ -53,6 +56,8 @@ void Game_handle_events(GamePtr me);
 void Game_update(GamePtr me);
 void Game_render(GamePtr me);
 void Game_clean(GamePtr me);
+RoomPtr Game_find_room(GamePtr me, const char * name);
+EntityPtr Game_find_entity(GamePtr me, const char * name);
 
 void Game_click(GamePtr me);
 

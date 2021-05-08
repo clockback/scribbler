@@ -418,3 +418,25 @@ void JourneyComponent_set_end_direction(
 ) {
 	me->direction = direction;
 }
+
+directions get_direction(char * str_direction) {
+	if (strcmp(str_direction, "NO_DIR") == 0) {
+		return NO_DIR;
+	}
+	else if (strcmp(str_direction, "FORWARDS_DIR") == 0) {
+		return FORWARDS_DIR;
+	}
+	else if (strcmp(str_direction, "BACKWARDS_DIR") == 0) {
+		return BACKWARDS_DIR;
+	}
+	else if (strcmp(str_direction, "LEFT_DIR") == 0) {
+		return LEFT_DIR;
+	}
+	else if (strcmp(str_direction, "RIGHT_DIR") == 0) {
+		return RIGHT_DIR;
+	}
+	else {
+		printf("Error: does not recognize direction '%s'\n", str_direction);
+		exit(-1);
+	}
+}

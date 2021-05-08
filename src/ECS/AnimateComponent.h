@@ -82,11 +82,13 @@ void AnimateComponent_draw(void * me_void);
 void AnimateComponent_delete(void * me_void);
 
 void AnimateComponent_load_sprite(
-	AnimateComponentPtr me, size_t animation, const char * filename
+	AnimateComponentPtr me, size_t animation, char * filename
 );
 void AnimateComponent_use_sprite(AnimateComponentPtr me, size_t animation);
 void AnimateComponent_set_display(AnimateComponentPtr me, bool display);
 void AnimateComponent_scale(AnimateComponentPtr me, double scale);
 void AnimateComponent_enable_scaling(AnimateComponentPtr me, bool scale);
+
+animation_frames get_animation_key(char * str_key);
 
 #endif

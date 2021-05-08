@@ -36,21 +36,21 @@ typedef Tile * TilePtr;
 typedef TileEdge * TileEdgePtr;
 
 struct Room {
-    const char * name;
+    char * name;
     PlanePtr * planes;
     size_t no_planes;
     int focal_point_height;
-    float scale_rate;
+    double scale_rate;
     int tiles_x;
 };
 
 void Room_init(
-	RoomPtr me, const char * name, int focal_point_height, float scale_rate,
+	RoomPtr me, char * name, int focal_point_height, double scale_rate,
 	int tiles_x
 );
 PlanePtr Room_add_plane(
-	RoomPtr me, int min_x, int min_y, int max_x, int max_y, int h, int h_x,
-	int h_y
+	RoomPtr me, char * name, int min_x, int min_y, int max_x, int max_y,
+	int h, int h_x, int h_y
 );
 int Room_get_point_x(RoomPtr me, ScreenPtr screen, double x, double y);
 int Room_get_point_y(
@@ -58,9 +58,11 @@ int Room_get_point_y(
 );
 int Room_no_tiles(RoomPtr me);
 void Room_join_tiles(RoomPtr me, TilePtr tile_1, TilePtr tile_2);
+PlanePtr Room_find_plane(RoomPtr me, char * name);
 
 struct Plane {
     RoomPtr room;
+    char * name;
     int min_x;
     int min_y;
     int max_x;
@@ -73,8 +75,8 @@ struct Plane {
 };
 
 void Plane_init(
-	PlanePtr me, RoomPtr room, int min_x, int min_y, int max_x, int max_y,
-	int h, int h_x, int h_y
+	PlanePtr me, RoomPtr room, char * name, int min_x, int min_y,
+	int max_x, int max_y, int h, int h_x, int h_y
 );
 TilePtr Plane_get_tile(PlanePtr me, int x, int y);
 TileEdgePtr Plane_get_tile_edge(PlanePtr me, int x1, int x2, int y1, int y2);

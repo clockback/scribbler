@@ -25,11 +25,11 @@
 #include "../solver.h"
 
 void Room_init(
-	RoomPtr me, const char * name, int focal_point_height, float scale_rate,
+	RoomPtr me, char * name, int focal_point_height, double scale_rate,
 	int tiles_x
 ) {
-	me->name = (const char *) malloc(sizeof(const char));
-	me->name = name;
+	me->name = (char *) malloc((strlen(name) + 1) * sizeof(const char));
+	strcpy(me->name, name);
 	me->planes = (PlanePtr *) malloc(sizeof(Plane));
 	me->no_planes = 0;
 	me->focal_point_height = focal_point_height;
@@ -38,8 +38,8 @@ void Room_init(
 }
 
 PlanePtr Room_add_plane(
-	RoomPtr me, int min_x, int min_y, int max_x, int max_y, int h, int h_x,
-	int h_y
+	RoomPtr me, char * name, int min_x, int min_y, int max_x, int max_y,
+	int h, int h_x, int h_y
 ) {
 	me->no_planes ++;
 	me->planes = (PlanePtr *) realloc(
@@ -48,7 +48,7 @@ PlanePtr Room_add_plane(
 
 	me->planes[me->no_planes - 1] = (PlanePtr) malloc(sizeof(Plane));
 	PlanePtr plane = me->planes[me->no_planes - 1];
-	Plane_init(plane, me, min_x, min_y, max_x, max_y, h, h_x, h_y);
+	Plane_init(plane, me, name, min_x, min_y, max_x, max_y, h, h_x, h_y);
 
 	return plane;
 }
@@ -113,11 +113,24 @@ void Room_join_tiles(RoomPtr me, TilePtr tile_1, TilePtr tile_2) {
 	}
 }
 
+PlanePtr Room_find_plane(RoomPtr me, char * name) {
+	for (int i = 0; i < me->no_planes; i ++) {
+		PlanePtr plane = me->planes[i];
+		if (strcmp(name, plane->name) == 0) {
+			return plane;
+		}
+	}
+	printf("Error. Plane '%s' not found in room '%s'!\n", name, me->name);
+	exit(-1);
+}
+
 void Plane_init(
-	PlanePtr me, RoomPtr room, int min_x, int min_y, int max_x, int max_y,
-	int h, int h_x, int h_y
+	PlanePtr me, RoomPtr room, char * name, int min_x, int min_y, int max_x,
+	int max_y, int h, int h_x, int h_y
 ) {
 	me->room = room;
+	me->name = (char *) malloc((strlen(name) + 1) * sizeof(char));
+	strcpy(me->name, name);
 	me->min_x = min_x;
 	me->min_y = min_y;
 	me->max_x = max_x;

@@ -34,7 +34,7 @@ ComponentPtr InteractComponent_init(
 		entity, CLICK_COMPONENT
 	);
 	me->hover_text = Font_add_text(
-		entity->system->globals->font, va_arg(*args, const char *)
+		entity->system->globals->font, va_arg(*args, char *)
 	);
 	TextBlock_position(me->hover_text, 0, 0, ANCHOR_TOP_LEFT);
 	me->hover_text->visible = true;
