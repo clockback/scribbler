@@ -28,6 +28,7 @@
 #include "./room.h"
 #include "./font.h"
 #include "./globals.h"
+#include "../events/ScenarioManager.h"
 #include "io/IoState.h"
 
 typedef struct {
@@ -40,6 +41,7 @@ typedef struct {
     size_t no_rooms;
     RoomPtr * rooms;
     FontPtr font;
+    ScenarioManagerPtr scenario_manager;
     GlobalsPtr globals;
 
     SDL_Texture * plain_cursor;
@@ -54,6 +56,7 @@ void Game_init(GamePtr me, int screen_width, int screen_height);
 void Game_prepare(GamePtr me);
 void Game_handle_events(GamePtr me);
 void Game_update(GamePtr me);
+void Game_handle_scenarios(GamePtr me);
 void Game_render(GamePtr me);
 void Game_clean(GamePtr me);
 RoomPtr Game_find_room(GamePtr me, const char * name);

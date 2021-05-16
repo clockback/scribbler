@@ -7,6 +7,9 @@ scribbler:
 		src/objects/font.c \
 		src/objects/globals.c \
 		src/objects/IoHandler.c \
+		src/events/ScenarioManager.c \
+		src/events/Trigger.c \
+		src/events/triggers/InteractEntityTrigger.c \
 		src/ECS/Components.c \
 		src/ECS/ECS.c \
 		src/ECS/MoveComponent.c \

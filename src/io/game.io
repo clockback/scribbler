@@ -25,6 +25,7 @@ micah add_mapped(8.5, 0.5, ground_floor);
 micah add_move;
 micah add_journey(home_lounge);
 micah add_animate("assets/images/characters/micah") \
+	enable_scaling(1) \
 	load_sprite("STAND_FORWARDS", "front.png") \
 	load_sprite("STAND_BACKWARDS", "back.png") \
 	load_sprite("STAND_LEFT", "left.png") \

@@ -46,6 +46,7 @@ typedef struct {
 	TilePtr * path_tiles;
 	PlanePtr * path_planes;
 	size_t direction;
+	EntityPtr end_interact;
 } JourneyComponent;
 
 typedef JourneyComponent * JourneyComponentPtr;
@@ -63,6 +64,9 @@ void JourneyComponent_journey_to(
 void JourneyComponent_dijkstra(JourneyComponentPtr me);
 void JourneyComponent_set_end_direction(
 	JourneyComponentPtr me, size_t direction
+);
+void JourneyComponent_set_end_interact(
+	JourneyComponentPtr me, EntityPtr end_interact
 );
 
 directions get_direction(char * str_direction);

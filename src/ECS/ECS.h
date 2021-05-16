@@ -26,7 +26,6 @@
 
 #include "SDL2/SDL.h"
 
-#include "../objects/globals.h"
 #include "../groups.h"
 #include "../objects/graphics.h"
 
@@ -96,6 +95,7 @@ void Entity_update(EntityPtr me);
 void Entity_draw(EntityPtr me);
 void Entity_delete(EntityPtr me);
 
+#include "../objects/globals.h"
 
 /* System class */
 struct System {

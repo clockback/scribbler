@@ -18,28 +18,28 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __GLOBALS_H__
-#define __GLOBALS_H__
+#ifndef __TRIGGER_H__
+#define __TRIGGER_H__
 
-#include "./graphics.h"
-#include "./room.h"
-#include "./font.h"
+#include <stdarg.h>
+#include <stddef.h>
 
-typedef struct Globals Globals;
-typedef Globals * GlobalsPtr;
+typedef enum {
+	INTERACT_ENTITY,
+	MAX_TRIGGERS
+} TriggerType;
 
-#include "../events/ScenarioManager.h"
+extern size_t trigger_sizes[MAX_TRIGGERS];
 
-struct Globals {
-    ScreenPtr screen;
-    RoomPtr room;
-    FontPtr font;
-    ScenarioManagerPtr scenario_manager;
-};
+void pre_init_trigger_functions();
+void pre_init_trigger_sizes();
+void init_triggers();
 
-void Globals_init(
-	GlobalsPtr me, ScreenPtr screen, RoomPtr room, FontPtr font,
-	ScenarioManagerPtr scenario_manager
+#include "triggers/InteractEntityTrigger.h"
+
+extern void (*init_for_trigger_functions[MAX_TRIGGERS]) (
+	void * me_void, va_list * args
 );
+
 
 #endif

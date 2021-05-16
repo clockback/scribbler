@@ -25,6 +25,8 @@
 #include "SpriteComponent.h"
 #include "AnimateComponent.h"
 #include "JourneyComponent.h"
+#include "InteractComponent.h"
+#include "../events/ScenarioManager.h"
 #include "ECS.h"
 
 ComponentPtr ClickComponent_init(
@@ -154,11 +156,19 @@ void ClickComponent_journey_to(
 		tile = me->interact_tile;
 	}
 
+	InteractComponentPtr interact = (
+		(InteractComponentPtr)Entity_fetch_component(entity, INTERACT_COMPONENT)
+	);
+
 	for (size_t i = 0; i < no_players; i ++) {
 		JourneyComponentPtr journey = Entity_fetch_component(
 			players[i], JOURNEY_COMPONENT
 		);
 		JourneyComponent_journey_to(journey, tile, x, y);
 		JourneyComponent_set_end_direction(journey, me->interact_dir);
+
+		if (interact != NULL) {
+			JourneyComponent_set_end_interact(journey, entity);
+		}
 	}
 }

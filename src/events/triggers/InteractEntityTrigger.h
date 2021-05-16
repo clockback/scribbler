@@ -18,28 +18,19 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __GLOBALS_H__
-#define __GLOBALS_H__
+#ifndef __INTERACTENTITYTRIGGER_H__
+#define __INTERACTENTITYTRIGGER_H__
 
-#include "./graphics.h"
-#include "./room.h"
-#include "./font.h"
+#include <stdbool.h>
 
-typedef struct Globals Globals;
-typedef Globals * GlobalsPtr;
+#include "../../ECS/ECS.h"
 
-#include "../events/ScenarioManager.h"
+typedef struct {
+    EntityPtr object;
+} InteractEntityTrigger;
 
-struct Globals {
-    ScreenPtr screen;
-    RoomPtr room;
-    FontPtr font;
-    ScenarioManagerPtr scenario_manager;
-};
+typedef InteractEntityTrigger * InteractEntityTriggerPtr;
 
-void Globals_init(
-	GlobalsPtr me, ScreenPtr screen, RoomPtr room, FontPtr font,
-	ScenarioManagerPtr scenario_manager
-);
+void InteractEntityTrigger_init(void * me, va_list * args);
 
 #endif

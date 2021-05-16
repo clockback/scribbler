@@ -45,6 +45,7 @@ ComponentPtr JourneyComponent_init(
 	me->path_tiles = (TilePtr *) malloc(sizeof(TilePtr));
 	me->path_planes = (PlanePtr *) malloc(sizeof(TilePtr));
 	me->direction = NO_DIR;
+	me->end_interact = NULL;
 
 	return me_component;
 }
@@ -191,6 +192,7 @@ void JourneyComponent_journey_to(
 	me->target_x = x;
 	me->target_y = y;
 	me->direction = NO_DIR;
+	me->end_interact = NULL;
 
 	JourneyComponent_dijkstra(me);
 }
@@ -417,6 +419,12 @@ void JourneyComponent_set_end_direction(
 	JourneyComponentPtr me, size_t direction
 ) {
 	me->direction = direction;
+}
+
+void JourneyComponent_set_end_interact(
+	JourneyComponentPtr me, EntityPtr end_interact
+) {
+	me->end_interact = end_interact;
 }
 
 directions get_direction(char * str_direction) {

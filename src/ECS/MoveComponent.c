@@ -64,6 +64,8 @@ void MoveComponent_delete(void * me_void) {
 }
 
 void MoveComponent_stop_moving(MoveComponentPtr me) {
+	EntityPtr entity = ((ComponentPtr)me)->entity;
+
 	me->old_vx = (float)me->vx;
 	me->old_vy = (float)me->vy;
 	me->vx = 0.0f;
@@ -100,6 +102,15 @@ void MoveComponent_stop_moving(MoveComponentPtr me) {
 				break;
 			}
 			journey->direction = NO_DIR;
+		}
+
+		if (journey->end_interact != NULL) {
+			ScenarioManager_queue_trigger(
+				entity->system->globals->scenario_manager, INTERACT_ENTITY, 1,
+				journey->end_interact
+			);
+
+			journey->end_interact = NULL;
 		}
 	}
 }

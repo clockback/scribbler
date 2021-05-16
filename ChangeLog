@@ -5,6 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+## [0.1.1] - 2021-05-16
+### Added
+- Introducing framework for basic scenario handling. At present, triggers can
+  be created due to certain things happening within the game. Each trigger has
+  certain information that might be associated with it. Though not yet properly
+  implemented, it will also use conditions to check other game state variables,
+  and actions to respond to the triggers.
+
+### Fixed
+- Reintroduced scaling of player character (accidentally removed).
+
 ## [0.1.0] - 2021-05-08
 ### Added
 - Implementing Io language, such that the game code is separated from the

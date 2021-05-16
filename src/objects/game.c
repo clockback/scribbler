@@ -36,8 +36,13 @@ void Game_init(GamePtr me, int screen_width, int screen_height) {
     me->font = (FontPtr) malloc(sizeof(Font));
     Font_init(me->font, "assets/images/glyphs", me->screen, 100);
 
+    me->scenario_manager = (ScenarioManagerPtr) malloc(sizeof(ScenarioManager));
+    ScenarioManager_init(me->scenario_manager);
+
 	me->globals = (GlobalsPtr) malloc(sizeof(Globals));
-	Globals_init(me->globals, me->screen, me->room, me->font);
+	Globals_init(
+		me->globals, me->screen, me->room, me->font, me->scenario_manager
+	);
 
     me->rend = me->screen->rend;
 
@@ -76,6 +81,11 @@ void Game_prepare(GamePtr me) {
 	IoHandler_get_entities(io, me);
 
 	IoHandler_destroy(io);
+
+	ScenarioPtr scenario = ScenarioManager_add_scenario(me->scenario_manager);
+	Scenario_add_listener(
+		scenario, INTERACT_ENTITY, 0, 1, Game_find_entity(me, "Rubbish bin")
+	);
 }
 
 void Game_handle_events(GamePtr me) {
@@ -96,12 +106,18 @@ void Game_handle_events(GamePtr me) {
 void Game_update(GamePtr me) {
 	System_refresh(me->sys);
 	System_update(me->sys);
+	Game_handle_scenarios(me);
 
 	me->sys->hover_entity = NULL;
 
 	SDL_GetMouseState(&me->cursor_dest_rect->x, &me->cursor_dest_rect->y);
 	me->cursor_dest_rect->x /= me->screen->scale;
 	me->cursor_dest_rect->y /= me->screen->scale;
+}
+
+void Game_handle_scenarios(GamePtr me) {
+	ScenarioManager_handle_scenarios(me->scenario_manager);
+	ScenarioManager_clean_triggers(me->scenario_manager);
 }
 
 void Game_render(GamePtr me) {
