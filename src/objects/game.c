@@ -86,6 +86,13 @@ void Game_prepare(GamePtr me) {
 	Scenario_add_listener(
 		scenario, INTERACT_ENTITY, 0, 1, Game_find_entity(me, "Rubbish bin")
 	);
+	StringPtr s1 = Scenario_add_string(scenario, RAW_STRING, 1, "Micah");
+	EntityGetterPtr e1 = Scenario_add_entity_getter(
+		scenario, ENTITY_WITH_NAME, 2, me, s1
+	);
+	NumericPtr n1 = Scenario_add_numeric(scenario, ENTITY_GET_X, 1, e1);
+	NumericPtr n2 = Scenario_add_numeric(scenario, RAW_NUMERIC, 1, 1.0);
+	Scenario_add_condition(scenario, NUMERIC_EQUAL_TO, 2, n1, n2);
 }
 
 void Game_handle_events(GamePtr me) {
@@ -494,7 +501,7 @@ RoomPtr Game_find_room(GamePtr me, const char * name) {
 	exit(-1);
 }
 
-EntityPtr Game_find_entity(GamePtr me, const char * name) {
+EntityPtr Game_find_entity(GamePtr me, char * name) {
 	for (size_t i = 0; i < me->sys->no_entities; i ++) {
 		EntityPtr entity = me->sys->entities[i];
 		if (strcmp(name, entity->id) == 0) {

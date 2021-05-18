@@ -10,6 +10,21 @@ scribbler:
 		src/events/ScenarioManager.c \
 		src/events/Trigger.c \
 		src/events/triggers/InteractEntityTrigger.c \
+		src/events/Condition.c \
+		src/events/conditions/NumericLessThanOrEqualToCondition.c \
+		src/events/conditions/NumericLessThanCondition.c \
+		src/events/conditions/NumericGreaterThanOrEqualToCondition.c \
+		src/events/conditions/NumericGreaterThanCondition.c \
+		src/events/conditions/NumericEqualToCondition.c \
+		src/events/Numeric.c \
+		src/events/numeric/RawNumeric.c \
+		src/events/numeric/EntityGetX.c \
+		src/events/numeric/EntityGetY.c \
+		src/events/EntityGetter.c \
+		src/events/entity_getters/RawEntityEntityGetter.c \
+		src/events/entity_getters/EntityWithNameEntityGetter.c \
+		src/events/String.c \
+		src/events/strings/RawStringString.c \
 		src/ECS/Components.c \
 		src/ECS/ECS.c \
 		src/ECS/MoveComponent.c \

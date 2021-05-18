@@ -32,8 +32,14 @@ bool Listener_catch_trigger(ListenerPtr me, TriggerPtr trigger) {
 	) == 0;
 }
 
-void Condition_init(ConditionPtr me, ConditionType type) {
+void Condition_init(ConditionPtr me, ConditionType type, va_list * args) {
 	me->type = type;
+	me->particulars = (void *) malloc(condition_sizes[type]);
+	init_for_condition_functions[type](me->particulars, args);
+}
+
+bool Condition_check(ConditionPtr me) {
+	return evaluate_for_condition_functions[me->type](me->particulars);
 }
 
 void Action_init(ActionPtr me, ActionType type) {
@@ -44,10 +50,14 @@ void Scenario_init(ScenarioPtr me) {
 	me->listeners = (ListenerPtr *) malloc(0);
 	me->conditions = (ConditionPtr *) malloc(0);
 	me->actions = (ActionPtr *) malloc(0);
+	me->numerics = (NumericPtr *) malloc(0);
+	me->entity_getters = (EntityGetterPtr *) malloc(0);
 
 	me->no_listeners = 0;
 	me->no_conditions = 0;
 	me->no_actions = 0;
+	me->no_numerics = 0;
+	me->no_entity_getters = 0;
 
 	me->active = true;
 }
@@ -71,8 +81,88 @@ ListenerPtr Scenario_add_listener(
 	return me->listeners[me->no_listeners - 1];
 }
 
+ConditionPtr Scenario_add_condition(
+	ScenarioPtr me, ConditionType type, size_t no_args, ...
+) {
+	me->no_conditions ++;
+	me->conditions = (ConditionPtr *) realloc(
+		me->conditions, me->no_conditions * sizeof(ConditionPtr)
+	);
+	me->conditions[me->no_conditions - 1] = (ConditionPtr) malloc(
+		sizeof(Condition)
+	);
+
+	va_list args;
+	va_start(args, no_args);
+	Condition_init(me->conditions[me->no_conditions - 1], type, &args);
+	va_end(args);
+
+	return me->conditions[me->no_conditions - 1];
+}
+
+NumericPtr Scenario_add_numeric(
+	ScenarioPtr me, NumericType type, size_t no_args, ...
+) {
+	me->no_numerics ++;
+	me->numerics = (NumericPtr *) realloc(
+		me->numerics, me->no_numerics * sizeof(NumericPtr)
+	);
+	me->numerics[me->no_numerics - 1] = (NumericPtr) malloc(sizeof(Numeric));
+
+	va_list args;
+	va_start(args, no_args);
+	Numeric_init(me->numerics[me->no_numerics - 1], type, &args);
+	va_end(args);
+
+	return me->numerics[me->no_numerics - 1];
+}
+
+EntityGetterPtr Scenario_add_entity_getter(
+	ScenarioPtr me, EntityGetterType type, size_t no_args, ...
+) {
+	me->no_entity_getters ++;
+	me->entity_getters = (EntityGetterPtr *) realloc(
+		me->entity_getters, me->no_entity_getters * sizeof(EntityGetterPtr)
+	);
+	me->entity_getters[me->no_entity_getters - 1] = (EntityGetterPtr) malloc(
+		sizeof(EntityGetter)
+	);
+
+	va_list args;
+	va_start(args, no_args);
+	EntityGetter_init(
+		me->entity_getters[me->no_entity_getters - 1], type, &args
+	);
+	va_end(args);
+
+	return me->entity_getters[me->no_entity_getters - 1];
+}
+
+StringPtr Scenario_add_string(
+	ScenarioPtr me, StringType type, size_t no_args, ...
+) {
+	me->no_strings ++;
+	me->strings = (StringPtr *) realloc(
+		me->strings, me->no_strings * sizeof(StringPtr)
+	);
+	me->strings[me->no_strings - 1] = (StringPtr) malloc(sizeof(String));
+
+	va_list args;
+	va_start(args, no_args);
+	String_init(me->strings[me->no_strings - 1], type, &args);
+	va_end(args);
+
+	return me->strings[me->no_strings - 1];
+}
+
 void Scenario_check_conditions(ScenarioPtr me) {
-	printf("Scenario triggered. Check conditions.\n");
+	for (size_t i = 0; i < me->no_conditions; i ++) {
+		ConditionPtr condition = me->conditions[i];
+		if (!Condition_check(condition)) {
+			return;
+		}
+	}
+	printf("Run actions!\n");
 }
 
 void ScenarioManager_init(ScenarioManagerPtr me) {
@@ -83,6 +173,10 @@ void ScenarioManager_init(ScenarioManagerPtr me) {
 	me->scenario_enabled = (bool *) malloc(0);
 
 	init_triggers();
+	init_conditions();
+	init_numerics();
+	init_entity_getters();
+	init_strings();
 }
 
 ScenarioPtr ScenarioManager_add_scenario(ScenarioManagerPtr me) {

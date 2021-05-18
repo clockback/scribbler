@@ -21,7 +21,7 @@ home_lounge connect_tiles(
 );
 
 micah := Create entity("Micah", "player", "world");
-micah add_mapped(8.5, 0.5, ground_floor);
+micah add_mapped(1.5, 0.5, ground_floor);
 micah add_move;
 micah add_journey(home_lounge);
 micah add_animate("assets/images/characters/micah") \

@@ -32,10 +32,9 @@ typedef struct Trigger Trigger;
 typedef Trigger * TriggerPtr;
 
 #include "Trigger.h"
-
-typedef enum {
-	LAST_DIALOGUE_OPTION
-} ConditionType;
+#include "Condition.h"
+#include "EntityGetter.h"
+#include "String.h"
 
 typedef enum {
 	ACTION_SPEAK,
@@ -57,6 +56,7 @@ typedef Listener * ListenerPtr;
 
 typedef struct {
 	ConditionType type;
+	void * particulars;
 } Condition;
 
 typedef Condition * ConditionPtr;
@@ -71,10 +71,16 @@ typedef struct {
 	ListenerPtr * listeners;
 	ConditionPtr * conditions;
 	ActionPtr * actions;
+	NumericPtr * numerics;
+	EntityGetterPtr * entity_getters;
+	StringPtr * strings;
 
 	size_t no_listeners;
 	size_t no_conditions;
 	size_t no_actions;
+	size_t no_numerics;
+	size_t no_entity_getters;
+	size_t no_strings;
 
 	bool active;
 } Scenario;
@@ -98,13 +104,26 @@ void Listener_init(
 );
 bool Listener_catch_trigger(ListenerPtr me, TriggerPtr trigger);
 
-void Condition_init(ConditionPtr me, ConditionType type);
+void Condition_init(ConditionPtr me, ConditionType type, va_list * args);
+bool Condition_check(ConditionPtr me);
 
 void Action_init(ActionPtr me, ActionType type);
 
 void Scenario_init(ScenarioPtr me);
 ListenerPtr Scenario_add_listener(
 	ScenarioPtr me, TriggerType type, int priority, size_t no_args, ...
+);
+ConditionPtr Scenario_add_condition(
+	ScenarioPtr me, ConditionType type, size_t no_args, ...
+);
+NumericPtr Scenario_add_numeric(
+	ScenarioPtr me, NumericType type, size_t no_args, ...
+);
+EntityGetterPtr Scenario_add_entity_getter(
+	ScenarioPtr me, EntityGetterType type, size_t no_args, ...
+);
+StringPtr Scenario_add_string(
+	ScenarioPtr me, StringType type, size_t no_args, ...
 );
 void Scenario_check_conditions(ScenarioPtr me);
 

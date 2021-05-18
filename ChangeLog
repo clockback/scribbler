@@ -5,6 +5,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+## [0.1.2] - 2021-05-18
+### Added
+- The scenario handler now accepts conditions, which must be fulfilled in order
+  for a scenario's actions to be carried out. The following conditions have
+  been added:
+    - NumericEqualTo: Equivalent to a == comparison on doubles.
+    - NumericGreaterThan: Equivalent to a > comparison on doubles.
+    - NumericGreaterThanOrEqualTo: Equivalent to a >= comparison on doubles.
+    - NumericLessThan: Equivalent to a < comparison on doubles.
+    - NumericLessTHanOrEqualTo: Equivalent to a <= comparison on doubles.
+- The scenario handler now has getters for entities. The following entity
+  getters have been added:
+    - RawEntity: Returns the input entity.
+    - EntityWithName: Searches for an entity with the input name.
+- The scenario handler now has getters for numerics (doubles). The following
+  numeric getters have been added:
+    - RawNumeric: Returns the input numeric.
+    - EntityGetX: Returns the x-position of the input entity.
+    - EntityGetY: Returns the y-position of the input entity.
+- The scenario handler now has getters for strings (character arrays). The
+  following string getter has been added:
+    - RawString: Returns the input character array.
+
 ## [0.1.1] - 2021-05-16
 ### Added
 - Introducing framework for basic scenario handling. At present, triggers can

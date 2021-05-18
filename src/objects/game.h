@@ -23,6 +23,9 @@
 
 #include <stdbool.h>
 
+typedef struct Game Game;
+typedef Game * GamePtr;
+
 #include "./graphics.h"
 #include "../ECS/ECS.h"
 #include "./room.h"
@@ -31,7 +34,7 @@
 #include "../events/ScenarioManager.h"
 #include "io/IoState.h"
 
-typedef struct {
+struct Game {
     ScreenPtr screen;
     SDL_Renderer * rend;
     SDL_Event * event;
@@ -48,9 +51,7 @@ typedef struct {
     SDL_Texture * interact_cursor;
     SDL_Rect * cursor_src_rect;
     SDL_Rect * cursor_dest_rect;
-} Game;
-
-typedef Game * GamePtr;
+};
 
 void Game_init(GamePtr me, int screen_width, int screen_height);
 void Game_prepare(GamePtr me);
@@ -60,7 +61,7 @@ void Game_handle_scenarios(GamePtr me);
 void Game_render(GamePtr me);
 void Game_clean(GamePtr me);
 RoomPtr Game_find_room(GamePtr me, const char * name);
-EntityPtr Game_find_entity(GamePtr me, const char * name);
+EntityPtr Game_find_entity(GamePtr me, char * name);
 
 void Game_click(GamePtr me);
 
