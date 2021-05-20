@@ -106,6 +106,7 @@ struct System {
 	GlobalsPtr globals;
     ScreenPtr screen;
 	EntityPtr hover_entity;
+    bool accept_user_input;
 };
 
 void System_init(SystemPtr me, GlobalsPtr globals);
@@ -116,5 +117,7 @@ size_t System_get_group_size(SystemPtr me, Group group);
 void System_update(SystemPtr me);
 void System_draw(SystemPtr me);
 void System_refresh(SystemPtr me);
+void System_accept_user_input(SystemPtr me, bool accept);
+bool System_is_accepting_user_input(SystemPtr me);
 
 #endif

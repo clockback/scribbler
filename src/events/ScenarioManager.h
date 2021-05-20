@@ -31,49 +31,55 @@ typedef ScenarioManager * ScenarioManagerPtr;
 typedef struct Trigger Trigger;
 typedef Trigger * TriggerPtr;
 
+typedef struct Listener Listener;
+typedef Listener * ListenerPtr;
+
+typedef struct Condition Condition;
+typedef Condition * ConditionPtr;
+
+typedef struct Action Action;
+typedef Action * ActionPtr;
+
+typedef struct Scenario Scenario;
+typedef Scenario * ScenarioPtr;
+
 #include "Trigger.h"
 #include "Condition.h"
+#include "Action.h"
+#include "ActionQueue.h"
 #include "EntityGetter.h"
 #include "String.h"
-
-typedef enum {
-	ACTION_SPEAK,
-	ACTION_DIALOGUE_OPTIONS
-} ActionType;
 
 struct Trigger {
     TriggerType type;
     void * particulars;
 };
 
-typedef struct {
+struct Listener {
 	TriggerType type;
     int priority;
 	void * particulars;
-} Listener;
+};
 
-typedef Listener * ListenerPtr;
-
-typedef struct {
+struct Condition {
 	ConditionType type;
 	void * particulars;
-} Condition;
+};
 
-typedef Condition * ConditionPtr;
-
-typedef struct {
+struct Action {
 	ActionType type;
-} Action;
+	void * particulars;
+	bool is_async;
+};
 
-typedef Action * ActionPtr;
-
-typedef struct {
+struct Scenario {
 	ListenerPtr * listeners;
 	ConditionPtr * conditions;
 	ActionPtr * actions;
 	NumericPtr * numerics;
 	EntityGetterPtr * entity_getters;
 	StringPtr * strings;
+	ActionQueuePtr * action_queues;
 
 	size_t no_listeners;
 	size_t no_conditions;
@@ -81,11 +87,10 @@ typedef struct {
 	size_t no_numerics;
 	size_t no_entity_getters;
 	size_t no_strings;
+	size_t no_action_queues;
 
 	bool active;
-} Scenario;
-
-typedef Scenario * ScenarioPtr;
+};
 
 struct ScenarioManager {
 	ScenarioPtr * scenarios;
@@ -107,7 +112,9 @@ bool Listener_catch_trigger(ListenerPtr me, TriggerPtr trigger);
 void Condition_init(ConditionPtr me, ConditionType type, va_list * args);
 bool Condition_check(ConditionPtr me);
 
-void Action_init(ActionPtr me, ActionType type);
+void Action_init(ActionPtr me, ActionType type, va_list * args);
+void Action_make_async(ActionPtr me);
+bool Action_run(ActionPtr me);
 
 void Scenario_init(ScenarioPtr me);
 ListenerPtr Scenario_add_listener(
@@ -116,6 +123,10 @@ ListenerPtr Scenario_add_listener(
 ConditionPtr Scenario_add_condition(
 	ScenarioPtr me, ConditionType type, size_t no_args, ...
 );
+ActionPtr Scenario_add_action(
+	ScenarioPtr me, ActionType type, size_t no_args, ...
+);
+ActionQueuePtr Scenario_add_action_queue(ScenarioPtr me);
 NumericPtr Scenario_add_numeric(
 	ScenarioPtr me, NumericType type, size_t no_args, ...
 );
@@ -134,5 +145,6 @@ TriggerPtr ScenarioManager_queue_trigger(
 );
 void ScenarioManager_handle_scenarios(ScenarioManagerPtr me);
 void ScenarioManager_clean_triggers(ScenarioManagerPtr me);
+void ScenarioManager_run_action_queues(ScenarioManagerPtr me);
 
 #endif

@@ -53,11 +53,15 @@ ComponentPtr JourneyComponent_init(
 void JourneyComponent_update(void * me_void) {
 	JourneyComponentPtr me = (JourneyComponentPtr)me_void;
 
+	/* If the path has run out, prevents the entity from moving. */
 	if (me->path_length == 0) {
 		MoveComponent_stop_moving(me->move);
 		return;
 	}
 
+	// If the path length is greater than or equal to 2, then the entity is not
+	// yet on the correct tile. If the entity is situated on the next tile, or
+	//
 	if (me->path_length >= 2 && (
 		Tile_contains_point(me->path_tiles[1], me->mapped->x, me->mapped->y)
 		|| (me->path_length >= 3 && Tile_contains_point(

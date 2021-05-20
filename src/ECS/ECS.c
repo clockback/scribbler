@@ -147,6 +147,8 @@ void System_init(SystemPtr me, GlobalsPtr globals) {
     me->screen = globals->screen;
     me->hover_entity = NULL;
     me->globals = globals;
+
+    System_accept_user_input(me, true);
 }
 
 EntityPtr System_add_entity(SystemPtr me, char * id) {
@@ -229,4 +231,12 @@ void System_refresh(SystemPtr me) {
 		}
 	}
 	me->entities = realloc(me->entities, me->no_entities * sizeof(EntityPtr));
+}
+
+void System_accept_user_input(SystemPtr me, bool accept) {
+	me->accept_user_input = accept;
+}
+
+bool System_is_accepting_user_input(SystemPtr me) {
+	return me->accept_user_input;
 }

@@ -18,33 +18,24 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __MOVE_COMPONENT_H__
-#define __MOVE_COMPONENT_H__
+#ifndef __ACTIONQUEUE_H__
+#define __ACTIONQUEUE_H__
 
-typedef struct MoveComponent MoveComponent;
-typedef MoveComponent * MoveComponentPtr;
+typedef struct ActionQueue ActionQueue;
+typedef ActionQueue * ActionQueuePtr;
 
-#include "ECS.h"
-#include "MappedComponent.h"
+#include "stddef.h"
+#include "ScenarioManager.h"
 
-struct MoveComponent {
-	Component base_component;
-	double vx;
-	double vy;
-
-	float old_vx;
-	float old_vy;
-
-	MappedComponentPtr mapped;
+struct ActionQueue {
+	size_t no_actions;
+	ActionPtr * actions;
 };
 
-ComponentPtr MoveComponent_init(
-	void * me_void, EntityPtr entity, va_list * args
+void ActionQueue_init(
+	ActionQueuePtr me, ActionPtr * actions, size_t no_actions
 );
-void MoveComponent_update(void * me_void);
-void MoveComponent_draw(void * me_void);
-void MoveComponent_delete(void * me_void);
+bool ActionQueue_run(ActionQueuePtr me);
 
-void MoveComponent_stop_moving(MoveComponentPtr me);
 
 #endif

@@ -16,6 +16,11 @@ scribbler:
 		src/events/conditions/NumericGreaterThanOrEqualToCondition.c \
 		src/events/conditions/NumericGreaterThanCondition.c \
 		src/events/conditions/NumericEqualToCondition.c \
+		src/events/Action.c \
+		src/events/actions/EntityJourneyToAction.c \
+		src/events/actions/SetUserInputAction.c \
+		src/events/actions/WaitAction.c \
+		src/events/ActionQueue.c \
 		src/events/Numeric.c \
 		src/events/numeric/RawNumeric.c \
 		src/events/numeric/EntityGetX.c \

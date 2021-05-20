@@ -5,6 +5,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+## [0.1.3] - 2021-05-19
+### Added
+- The scenario handler now accepts actions, which are carried out sequentially.
+  The following action has been added:
+    - EntityJourneyTo: Commands the entity to travel to the destination.
+    - SetUserInput: Allows or disallows the player entity to be commanded.
+    - Wait: Stalls the action queue for a certain period of time.
+- Action queues are collections of actions that have been duplicated from a
+  scenario once the listener receives a response and the conditions are met.
+- Actions can be handled asynchronously, so that multiple actions may occur at
+  a time, despite being part of a single action queue.
+
+### Changed
+
+- Altering README.md for focus on engine and less on game.
+
+### Fixed
+- The memory comparison for the trigger and listener's particulars is now able
+  to handle triggers of different sizes.
+- Creating string objects from raw strings was allocated too little memory. An
+  apporpiate amount is now assigned.
+- If an entity moved out of the bounds of a plane without turning a corner, it
+  would crash. This has been fixed by only updating the tile in the move
+  component if the tile exists.
+
 ## [0.1.2] - 2021-05-18
 ### Added
 - The scenario handler now accepts conditions, which must be fulfilled in order
@@ -14,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - NumericGreaterThan: Equivalent to a > comparison on doubles.
     - NumericGreaterThanOrEqualTo: Equivalent to a >= comparison on doubles.
     - NumericLessThan: Equivalent to a < comparison on doubles.
-    - NumericLessTHanOrEqualTo: Equivalent to a <= comparison on doubles.
+    - NumericLessThanOrEqualTo: Equivalent to a <= comparison on doubles.
 - The scenario handler now has getters for entities. The following entity
   getters have been added:
     - RawEntity: Returns the input entity.

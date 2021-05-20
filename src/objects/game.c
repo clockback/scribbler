@@ -83,6 +83,7 @@ void Game_prepare(GamePtr me) {
 	IoHandler_destroy(io);
 
 	ScenarioPtr scenario = ScenarioManager_add_scenario(me->scenario_manager);
+
 	Scenario_add_listener(
 		scenario, INTERACT_ENTITY, 0, 1, Game_find_entity(me, "Rubbish bin")
 	);
@@ -93,6 +94,18 @@ void Game_prepare(GamePtr me) {
 	NumericPtr n1 = Scenario_add_numeric(scenario, ENTITY_GET_X, 1, e1);
 	NumericPtr n2 = Scenario_add_numeric(scenario, RAW_NUMERIC, 1, 1.0);
 	Scenario_add_condition(scenario, NUMERIC_EQUAL_TO, 2, n1, n2);
+
+	StringPtr s2 = Scenario_add_string(scenario, RAW_STRING, 1, "Micah");
+	EntityGetterPtr e2 = Scenario_add_entity_getter(
+		scenario, ENTITY_WITH_NAME, 2, me, s2
+	);
+	NumericPtr n3 = Scenario_add_numeric(scenario, RAW_NUMERIC, 1, 3.3);
+	NumericPtr n4 = Scenario_add_numeric(scenario, RAW_NUMERIC, 1, 4.3);
+	PlanePtr p1 = Room_find_plane(me->room, "Upper Floor");
+	Scenario_add_action(scenario, SET_USER_INPUT, 2, me->sys, false);
+	Scenario_add_action(scenario, WAIT, 1, 200);
+	Scenario_add_action(scenario, ENTITY_JOURNEY_TO, 4, e2, n3, n4, p1);
+	Scenario_add_action(scenario, SET_USER_INPUT, 2, me->sys, true);
 }
 
 void Game_handle_events(GamePtr me) {
@@ -125,6 +138,7 @@ void Game_update(GamePtr me) {
 void Game_handle_scenarios(GamePtr me) {
 	ScenarioManager_handle_scenarios(me->scenario_manager);
 	ScenarioManager_clean_triggers(me->scenario_manager);
+	ScenarioManager_run_action_queues(me->scenario_manager);
 }
 
 void Game_render(GamePtr me) {
@@ -389,11 +403,15 @@ void Game_click(GamePtr me) {
 	 * Commands each entity to journey to the mouse position (or modified mouse
 	 * mouse position.
 	 */
-	for (size_t i = 0; i < no_players; i ++) {
-		JourneyComponentPtr journey = Entity_fetch_component(
-			players[i], JOURNEY_COMPONENT
-		);
-		JourneyComponent_journey_to(journey, chosen_tile, chosen_x, chosen_y);
+	if (System_is_accepting_user_input(me->sys)) {
+		for (size_t i = 0; i < no_players; i ++) {
+			JourneyComponentPtr journey = Entity_fetch_component(
+				players[i], JOURNEY_COMPONENT
+			);
+			JourneyComponent_journey_to(
+				journey, chosen_tile, chosen_x, chosen_y
+			);
+		}
 	}
 }
 

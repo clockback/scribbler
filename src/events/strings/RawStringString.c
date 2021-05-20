@@ -6,7 +6,7 @@ void RawStringString_init(void * me_void, va_list * args) {
 	RawStringStringPtr me = (RawStringStringPtr)me_void;
 
 	char * string = va_arg(*args, char *);
-	me->string = (char *) malloc(strlen(string) * sizeof(char));
+	me->string = (char *) malloc(strlen(string) * (sizeof(char) + 1));
 	strcpy(me->string, string);
 }
 

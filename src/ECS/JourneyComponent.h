@@ -21,6 +21,9 @@
 #ifndef __JOURNEY_COMPONENT_H__
 #define __JOURNEY_COMPONENT_H__
 
+typedef struct JourneyComponent JourneyComponent;
+typedef JourneyComponent * JourneyComponentPtr;
+
 #include "ECS.h"
 #include "MappedComponent.h"
 #include "MoveComponent.h"
@@ -34,7 +37,7 @@ typedef enum {
 	RIGHT_DIR
 } directions;
 
-typedef struct {
+struct JourneyComponent {
 	Component base_component;
 	MappedComponentPtr mapped;
 	MoveComponentPtr move;
@@ -47,9 +50,7 @@ typedef struct {
 	PlanePtr * path_planes;
 	size_t direction;
 	EntityPtr end_interact;
-} JourneyComponent;
-
-typedef JourneyComponent * JourneyComponentPtr;
+};
 
 ComponentPtr JourneyComponent_init(
 	void * me_void, EntityPtr entity, va_list * args

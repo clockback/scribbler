@@ -21,18 +21,19 @@
 #ifndef __MAPPED_COMPONENT_H__
 #define __MAPPED_COMPONENT_H__
 
+typedef struct MappedComponent MappedComponent;
+typedef MappedComponent * MappedComponentPtr;
+
 #include "ECS.h"
 #include "../objects/room.h"
 
-typedef struct {
+struct MappedComponent {
 	Component base_component;
 	double x;
 	double y;
 	PlanePtr plane;
 	TilePtr tile;
-} MappedComponent;
-
-typedef MappedComponent * MappedComponentPtr;
+};
 
 ComponentPtr MappedComponent_init(
 	void * me_void, EntityPtr entity, va_list * args

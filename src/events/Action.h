@@ -18,33 +18,35 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __MOVE_COMPONENT_H__
-#define __MOVE_COMPONENT_H__
+#ifndef __ACTION_H__
+#define __ACTION_H__
 
-typedef struct MoveComponent MoveComponent;
-typedef MoveComponent * MoveComponentPtr;
+#include <stdarg.h>
+#include <stddef.h>
 
-#include "ECS.h"
-#include "MappedComponent.h"
+typedef enum {
+	ENTITY_JOURNEY_TO,
+	SET_USER_INPUT,
+	WAIT,
+	MAX_ACTIONS
+} ActionType;
 
-struct MoveComponent {
-	Component base_component;
-	double vx;
-	double vy;
+extern size_t action_sizes[MAX_ACTIONS];
 
-	float old_vx;
-	float old_vy;
+void pre_init_action_functions();
+void pre_init_action_sizes();
+void pre_init_action_run();
+void init_actions();
 
-	MappedComponentPtr mapped;
-};
+#include "actions/EntityJourneyToAction.h"
+#include "actions/SetUserInputAction.h"
+#include "actions/WaitAction.h"
 
-ComponentPtr MoveComponent_init(
-	void * me_void, EntityPtr entity, va_list * args
+extern void (*init_for_action_functions[MAX_ACTIONS]) (
+	void * me_void, va_list * args
 );
-void MoveComponent_update(void * me_void);
-void MoveComponent_draw(void * me_void);
-void MoveComponent_delete(void * me_void);
 
-void MoveComponent_stop_moving(MoveComponentPtr me);
+extern bool (*run_for_action_functions[MAX_ACTIONS]) (void * me_void);
+
 
 #endif

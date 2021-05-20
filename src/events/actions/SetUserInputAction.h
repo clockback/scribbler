@@ -18,33 +18,21 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __MOVE_COMPONENT_H__
-#define __MOVE_COMPONENT_H__
+#ifndef __SETUSERINPUTACTION_H__
+#define __SETUSERINPUTACTION_H__
 
-typedef struct MoveComponent MoveComponent;
-typedef MoveComponent * MoveComponentPtr;
+typedef struct SetUserInputAction SetUserInputAction;
+typedef SetUserInputAction * SetUserInputActionPtr;
 
-#include "ECS.h"
-#include "MappedComponent.h"
+#include "../Action.h"
+#include "../../ECS/ECS.h"
 
-struct MoveComponent {
-	Component base_component;
-	double vx;
-	double vy;
-
-	float old_vx;
-	float old_vy;
-
-	MappedComponentPtr mapped;
+struct SetUserInputAction {
+	SystemPtr system;
+	bool allow_user_input;
 };
 
-ComponentPtr MoveComponent_init(
-	void * me_void, EntityPtr entity, va_list * args
-);
-void MoveComponent_update(void * me_void);
-void MoveComponent_draw(void * me_void);
-void MoveComponent_delete(void * me_void);
-
-void MoveComponent_stop_moving(MoveComponentPtr me);
+void SetUserInputAction_init(void * me, va_list * args);
+bool SetUserInputAction_run(void * me);
 
 #endif

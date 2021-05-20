@@ -1,5 +1,5 @@
 ## About
-Scribbler is a free and open-source adventure anthology video game.
+Scribbler is a free and open-source adventure video game engine.
 
 ### License
 

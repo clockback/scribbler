@@ -18,33 +18,20 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __MOVE_COMPONENT_H__
-#define __MOVE_COMPONENT_H__
+#ifndef __WAITACTION_H__
+#define __WAITACTION_H__
 
-typedef struct MoveComponent MoveComponent;
-typedef MoveComponent * MoveComponentPtr;
+typedef struct WaitAction WaitAction;
+typedef WaitAction * WaitActionPtr;
 
-#include "ECS.h"
-#include "MappedComponent.h"
+#include "../Action.h"
 
-struct MoveComponent {
-	Component base_component;
-	double vx;
-	double vy;
-
-	float old_vx;
-	float old_vy;
-
-	MappedComponentPtr mapped;
+struct WaitAction {
+	int duration;
+	int current;
 };
 
-ComponentPtr MoveComponent_init(
-	void * me_void, EntityPtr entity, va_list * args
-);
-void MoveComponent_update(void * me_void);
-void MoveComponent_draw(void * me_void);
-void MoveComponent_delete(void * me_void);
-
-void MoveComponent_stop_moving(MoveComponentPtr me);
+void WaitAction_init(void * me, va_list * args);
+bool WaitAction_run(void * me);
 
 #endif

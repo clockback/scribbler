@@ -160,15 +160,17 @@ void ClickComponent_journey_to(
 		(InteractComponentPtr)Entity_fetch_component(entity, INTERACT_COMPONENT)
 	);
 
-	for (size_t i = 0; i < no_players; i ++) {
-		JourneyComponentPtr journey = Entity_fetch_component(
-			players[i], JOURNEY_COMPONENT
-		);
-		JourneyComponent_journey_to(journey, tile, x, y);
-		JourneyComponent_set_end_direction(journey, me->interact_dir);
+	if (System_is_accepting_user_input(entity->system)) {
+		for (size_t i = 0; i < no_players; i ++) {
+			JourneyComponentPtr journey = Entity_fetch_component(
+				players[i], JOURNEY_COMPONENT
+			);
+			JourneyComponent_journey_to(journey, tile, x, y);
+			JourneyComponent_set_end_direction(journey, me->interact_dir);
 
-		if (interact != NULL) {
-			JourneyComponent_set_end_interact(journey, entity);
+			if (interact != NULL) {
+				JourneyComponent_set_end_interact(journey, entity);
+			}
 		}
 	}
 }

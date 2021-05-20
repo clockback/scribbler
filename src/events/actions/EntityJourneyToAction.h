@@ -18,33 +18,28 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __MOVE_COMPONENT_H__
-#define __MOVE_COMPONENT_H__
+#ifndef __ENTITYJOURNEYTOACTION_H__
+#define __ENTITYJOURNEYTOACTION_H__
 
-typedef struct MoveComponent MoveComponent;
-typedef MoveComponent * MoveComponentPtr;
+typedef struct EntityJourneyToAction EntityJourneyToAction;
+typedef EntityJourneyToAction * EntityJourneyToActionPtr;
 
-#include "ECS.h"
-#include "MappedComponent.h"
+#include <stdbool.h>
 
-struct MoveComponent {
-	Component base_component;
-	double vx;
-	double vy;
+#include "../Action.h"
+#include "../EntityGetter.h"
+#include "../../ECS/JourneyComponent.h"
+#include "../../ECS/MappedComponent.h"
 
-	float old_vx;
-	float old_vy;
-
-	MappedComponentPtr mapped;
+struct EntityJourneyToAction {
+	EntityGetterPtr entity;
+	NumericPtr x;
+	NumericPtr y;
+	PlanePtr plane;
+	bool started;
 };
 
-ComponentPtr MoveComponent_init(
-	void * me_void, EntityPtr entity, va_list * args
-);
-void MoveComponent_update(void * me_void);
-void MoveComponent_draw(void * me_void);
-void MoveComponent_delete(void * me_void);
-
-void MoveComponent_stop_moving(MoveComponentPtr me);
+void EntityJourneyToAction_init(void * me, va_list * args);
+bool EntityJourneyToAction_run(void * me);
 
 #endif

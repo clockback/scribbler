@@ -28,7 +28,7 @@ bool Listener_catch_trigger(ListenerPtr me, TriggerPtr trigger) {
 	}
 
 	return memcmp(
-		me->particulars, trigger->particulars, sizeof(InteractEntityTrigger)
+		me->particulars, trigger->particulars, sizeof(trigger_sizes[me->type])
 	) == 0;
 }
 
@@ -42,8 +42,21 @@ bool Condition_check(ConditionPtr me) {
 	return evaluate_for_condition_functions[me->type](me->particulars);
 }
 
-void Action_init(ActionPtr me, ActionType type) {
+void Action_init(
+	ActionPtr me, ActionType type, va_list * args
+) {
 	me->type = type;
+	me->is_async = false;
+	me->particulars = (void *) malloc(action_sizes[type]);
+	init_for_action_functions[type](me->particulars, args);
+}
+
+void Action_make_async(ActionPtr me) {
+	me->is_async = true;
+}
+
+bool Action_run(ActionPtr me) {
+	return run_for_action_functions[me->type](me->particulars);
 }
 
 void Scenario_init(ScenarioPtr me) {
@@ -52,12 +65,16 @@ void Scenario_init(ScenarioPtr me) {
 	me->actions = (ActionPtr *) malloc(0);
 	me->numerics = (NumericPtr *) malloc(0);
 	me->entity_getters = (EntityGetterPtr *) malloc(0);
+	me->strings = (StringPtr *) malloc(0);
+	me->action_queues = (ActionQueuePtr *) malloc(0);
 
 	me->no_listeners = 0;
 	me->no_conditions = 0;
 	me->no_actions = 0;
 	me->no_numerics = 0;
 	me->no_entity_getters = 0;
+	me->no_strings = 0;
+	me->no_action_queues = 0;
 
 	me->active = true;
 }
@@ -98,6 +115,38 @@ ConditionPtr Scenario_add_condition(
 	va_end(args);
 
 	return me->conditions[me->no_conditions - 1];
+}
+
+ActionPtr Scenario_add_action(
+	ScenarioPtr me, ActionType type, size_t no_args, ...
+) {
+	me->no_actions ++;
+	me->actions = (ActionPtr *) realloc(
+		me->actions, me->no_actions * sizeof(ActionPtr)
+	);
+	me->actions[me->no_actions - 1] = (ActionPtr) malloc(sizeof(Action));
+
+	va_list args;
+	va_start(args, no_args);
+	Action_init(me->actions[me->no_actions - 1], type, &args);
+	va_end(args);
+
+	return me->actions[me->no_actions - 1];
+}
+
+ActionQueuePtr Scenario_add_action_queue(ScenarioPtr me) {
+	me->no_action_queues ++;
+	me->action_queues = (ActionQueuePtr *) realloc(
+		me->action_queues, me->no_action_queues * sizeof(ActionQueuePtr)
+	);
+	me->action_queues[me->no_action_queues - 1] = (ActionQueuePtr) malloc(
+		sizeof(ActionPtr)
+	);
+	ActionQueue_init(
+		me->action_queues[me->no_action_queues - 1], me->actions, me->no_actions
+	);
+
+	return me->action_queues[me->no_action_queues - 1];
 }
 
 NumericPtr Scenario_add_numeric(
@@ -162,7 +211,8 @@ void Scenario_check_conditions(ScenarioPtr me) {
 			return;
 		}
 	}
-	printf("Run actions!\n");
+
+	Scenario_add_action_queue(me);
 }
 
 void ScenarioManager_init(ScenarioManagerPtr me) {
@@ -174,6 +224,7 @@ void ScenarioManager_init(ScenarioManagerPtr me) {
 
 	init_triggers();
 	init_conditions();
+	init_actions();
 	init_numerics();
 	init_entity_getters();
 	init_strings();
@@ -233,4 +284,24 @@ void ScenarioManager_clean_triggers(ScenarioManagerPtr me) {
 		free(trigger);
 	}
 	me->no_triggers = 0;
+}
+
+void ScenarioManager_run_action_queues(ScenarioManagerPtr me) {
+	for (size_t i = 0; i < me->no_scenarios; i ++) {
+		ScenarioPtr scenario = me->scenarios[i];
+		for (size_t j = 0; j < scenario->no_action_queues; j ++) {
+			bool depleted = ActionQueue_run(scenario->action_queues[j]);
+			if (depleted) {
+				free(scenario->action_queues[j]);
+				scenario->no_action_queues --;
+				for (size_t k = j; k < scenario->no_action_queues; k ++) {
+					scenario->action_queues[k] = scenario->action_queues[k - 1];
+				}
+				scenario->action_queues = (ActionQueuePtr *) realloc(
+					scenario->action_queues,
+					scenario->no_action_queues * sizeof(ActionQueuePtr)
+				);
+			}
+		}
+	}
 }

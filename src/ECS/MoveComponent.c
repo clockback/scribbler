@@ -42,16 +42,29 @@ ComponentPtr MoveComponent_init(void * me_void, EntityPtr entity, va_list * args
 void MoveComponent_update(void * me_void) {
 	MoveComponentPtr me = (MoveComponentPtr)me_void;
 	MappedComponentPtr mapped = me->mapped;
+
 	mapped->x += me->vx;
 	mapped->y += me->vy;
+
+	/**
+	 * If the mapped component is no longer on the plane boundaries, the tile
+	 * is not updated.
+	 */
 	if (
+		mapped->x < mapped->plane->min_x || mapped->x > mapped->plane->max_x
+		|| mapped->y < mapped->plane->min_y || mapped->y > mapped->plane->max_y
+	) {
+		return;
+	}
+
+	/* If the position is no longer on the tile, finds the updated tile. */
+	else if (
 		mapped->x < mapped->tile->x || mapped->x > mapped->tile->x + 1
 		|| mapped->y < mapped->tile->y || mapped->y > mapped->tile->y + 1
 	) {
 		mapped->tile = Plane_get_tile(
 			mapped->plane, (int)mapped->x, (int)mapped->y
 		);
-		mapped->plane = mapped->tile->plane;
 	}
 }
 
