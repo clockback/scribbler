@@ -199,6 +199,9 @@ void Font_load_character(FontPtr me, glyph i, const char * path) {
     case WHITE_SPACE:
         strcat(full_filename, "white_space");
         break;
+    case COMMA:
+    	strcat(full_filename, "comma");
+    	break;
     case FULL_STOP:
         strcat(full_filename, "full_stop");
         break;
@@ -402,6 +405,9 @@ SDL_Texture * Font_render_text(
             break;
         case ' ':
             g = WHITE_SPACE;
+            break;
+        case ',':
+            g = COMMA;
             break;
         case '.':
             g = FULL_STOP;

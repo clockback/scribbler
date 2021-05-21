@@ -18,37 +18,25 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __ACTION_H__
-#define __ACTION_H__
+#ifndef __SPEAKACTION_H__
+#define __SPEAKACTION_H__
 
-#include <stdarg.h>
-#include <stddef.h>
+typedef struct SpeakAction SpeakAction;
+typedef SpeakAction * SpeakActionPtr;
 
-typedef enum {
-	ENTITY_JOURNEY_TO,
-	SET_USER_INPUT,
-	WAIT,
-	SPEAK,
-	MAX_ACTIONS
-} ActionType;
+#include "../Action.h"
+#include "../String.h"
+#include "../../ECS/SpeakComponent.h"
 
-extern size_t action_sizes[MAX_ACTIONS];
+struct SpeakAction {
+	EntityGetterPtr entity;
+	StringPtr text;
+	NumericPtr duration;
+	int i;
+	bool started;
+};
 
-void pre_init_action_functions();
-void pre_init_action_sizes();
-void pre_init_action_run();
-void init_actions();
-
-#include "actions/EntityJourneyToAction.h"
-#include "actions/SetUserInputAction.h"
-#include "actions/WaitAction.h"
-#include "actions/SpeakAction.h"
-
-extern void (*init_for_action_functions[MAX_ACTIONS]) (
-	void * me_void, va_list * args
-);
-
-extern bool (*run_for_action_functions[MAX_ACTIONS]) (void * me_void);
-
+void SpeakAction_init(void * me, va_list * args);
+bool SpeakAction_run(void * me);
 
 #endif

@@ -43,6 +43,7 @@ void pre_init_functions() {
 	init_for_component_functions[ANIMATE_COMPONENT] = AnimateComponent_init;
 	init_for_component_functions[CLICK_COMPONENT] = ClickComponent_init;
 	init_for_component_functions[INTERACT_COMPONENT] = InteractComponent_init;
+	init_for_component_functions[SPEAK_COMPONENT] = SpeakComponent_init;
 }
 
 void pre_init_sizes() {
@@ -53,6 +54,7 @@ void pre_init_sizes() {
 	component_sizes[ANIMATE_COMPONENT] = sizeof(AnimateComponent);
 	component_sizes[CLICK_COMPONENT] = sizeof(ClickComponent);
 	component_sizes[INTERACT_COMPONENT] = sizeof(InteractComponent);
+	component_sizes[SPEAK_COMPONENT] = sizeof(SpeakComponent);
 }
 
 void pre_update_functions() {
@@ -65,6 +67,7 @@ void pre_update_functions() {
 	update_for_component_functions[INTERACT_COMPONENT] = (
 		InteractComponent_update
 	);
+	update_for_component_functions[SPEAK_COMPONENT] = SpeakComponent_update;
 }
 
 void pre_draw_functions() {
@@ -75,6 +78,7 @@ void pre_draw_functions() {
 	draw_for_component_functions[ANIMATE_COMPONENT] = AnimateComponent_draw;
 	draw_for_component_functions[CLICK_COMPONENT] = ClickComponent_draw;
 	draw_for_component_functions[INTERACT_COMPONENT] = InteractComponent_draw;
+	draw_for_component_functions[SPEAK_COMPONENT] = SpeakComponent_draw;
 }
 
 void pre_delete_functions() {
@@ -87,6 +91,7 @@ void pre_delete_functions() {
 	delete_for_component_functions[INTERACT_COMPONENT] = (
 		InteractComponent_delete
 	);
+	delete_for_component_functions[SPEAK_COMPONENT] = SpeakComponent_delete;
 }
 
 void init_components() {

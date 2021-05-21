@@ -18,32 +18,33 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __COMPONENTS_H__
-#define __COMPONENTS_H__
+#ifndef __SPEAK_COMPONENT_H__
+#define __SPEAK_COMPONENT_H__
 
-#include "MappedComponent.h"
-#include "MoveComponent.h"
-#include "SpriteComponent.h"
-#include "JourneyComponent.h"
-#include "AnimateComponent.h"
-#include "ClickComponent.h"
-#include "InteractComponent.h"
-#include "SpeakComponent.h"
+typedef struct SpeakComponent SpeakComponent;
+typedef SpeakComponent * SpeakComponentPtr;
+
 #include "ECS.h"
+#include "MappedComponent.h"
+#include "AnimateComponent.h"
+#include "../objects/font.h"
 
-extern ComponentPtr (*init_for_component_functions[MAX_COMPONENTS]) (
-	void* me_void, EntityPtr entity, va_list * args
+struct SpeakComponent {
+	Component base_component;
+	FontPtr font;
+	int duration;
+	TextBlockPtr text_block;
+	MappedComponentPtr mapped;
+	AnimateComponentPtr animate;
+};
+
+ComponentPtr SpeakComponent_init(
+	void * me_void, EntityPtr entity, va_list * args
 );
-extern size_t component_sizes[MAX_COMPONENTS];
-extern void (*update_for_component_functions[MAX_COMPONENTS]) (void* me_void);
-extern void (*draw_for_component_functions[MAX_COMPONENTS]) (void* me_void);
-extern void (*delete_for_component_functions[MAX_COMPONENTS]) (void* me_void);
+void SpeakComponent_update(void * me_void);
+void SpeakComponent_draw(void * me_void);
+void SpeakComponent_delete(void * me_void);
 
-
-void pre_init_functions();
-void pre_init_sizes();
-void pre_update_functions();
-void pre_draw_functions();
-void init_components();
+void SpeakComponent_speak(SpeakComponentPtr speak, char * text, int duration);
 
 #endif

@@ -82,6 +82,7 @@ typedef enum {
     LETTER_Y_UPPER,
     LETTER_Z_UPPER,
     WHITE_SPACE,
+    COMMA,
     FULL_STOP,
     EXCLAMATION_MARK,
     QUESTION_MARK,

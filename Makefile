@@ -20,6 +20,7 @@ scribbler:
 		src/events/actions/EntityJourneyToAction.c \
 		src/events/actions/SetUserInputAction.c \
 		src/events/actions/WaitAction.c \
+		src/events/actions/SpeakAction.c \
 		src/events/ActionQueue.c \
 		src/events/Numeric.c \
 		src/events/numeric/RawNumeric.c \
@@ -39,6 +40,7 @@ scribbler:
 		src/ECS/AnimateComponent.c \
 		src/ECS/ClickComponent.c \
 		src/ECS/InteractComponent.c \
+		src/ECS/SpeakComponent.c \
 		src/solver.c \
 		-lSDL2main \
 		-lSDL2 \

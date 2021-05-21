@@ -64,6 +64,9 @@ void IoHandler_get_click_component(
 void IoHandler_get_interact_component(
 	IoHandlerPtr me, GamePtr game, IoObject * io_entity, EntityPtr entity
 );
+void IoHandler_get_speak_component(
+	IoHandlerPtr me, GamePtr game, IoObject * io_entity, EntityPtr entity
+);
 
 RoomPtr IoHandler_get_room(IoHandlerPtr me, GamePtr game, IoObject * io_room);
 PlanePtr IoHandler_get_plane(

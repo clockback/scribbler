@@ -101,10 +101,12 @@ void Game_prepare(GamePtr me) {
 	);
 	NumericPtr n3 = Scenario_add_numeric(scenario, RAW_NUMERIC, 1, 3.3);
 	NumericPtr n4 = Scenario_add_numeric(scenario, RAW_NUMERIC, 1, 4.3);
-	PlanePtr p1 = Room_find_plane(me->room, "Upper Floor");
+	NumericPtr n5 = Scenario_add_numeric(scenario, RAW_NUMERIC, 1, 200.0);
+	PlanePtr p1 = Room_find_plane(me->room, "Ground Floor");
 	Scenario_add_action(scenario, SET_USER_INPUT, 2, me->sys, false);
 	Scenario_add_action(scenario, WAIT, 1, 200);
 	Scenario_add_action(scenario, ENTITY_JOURNEY_TO, 4, e2, n3, n4, p1);
+	Scenario_add_action(scenario, SPEAK, 3, e1, s2, n5);
 	Scenario_add_action(scenario, SET_USER_INPUT, 2, me->sys, true);
 }
 

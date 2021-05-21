@@ -245,6 +245,7 @@ void IoHandler_get_entities(IoHandlerPtr me, GamePtr game) {
 		IoHandler_get_animate_component(me, game, io_entity, entity);
 		IoHandler_get_click_component(me, game, io_entity, entity);
 		IoHandler_get_interact_component(me, game, io_entity, entity);
+		IoHandler_get_speak_component(me, game, io_entity, entity);
 	}
 }
 
@@ -428,6 +429,18 @@ void IoHandler_get_interact_component(
 	char * label = IoSeq_asCString(IoObject_getSlot_(io_interact, get_label));
 
 	Entity_add_component(entity, INTERACT_COMPONENT, 1, label);
+}
+
+void IoHandler_get_speak_component(
+	IoHandlerPtr me, GamePtr game, IoObject * io_entity, EntityPtr entity
+) {
+	IoSymbol * get_speak = IoState_symbolWithCString_(me->iostate, "speak_c");
+	IoObject * io_speak = IoObject_getSlot_(io_entity, get_speak);
+	if (strcmp(IoObject_name(io_speak), "nil") == 0) {
+		return;
+	}
+
+	Entity_add_component(entity, SPEAK_COMPONENT, 1, game->font);
 }
 
 RoomPtr IoHandler_get_room(IoHandlerPtr me, GamePtr game, IoObject * io_room) {

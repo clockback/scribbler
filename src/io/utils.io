@@ -44,6 +44,7 @@ EntityObj journey_c := nil;
 EntityObj animate_c := nil;
 EntityObj click_c := nil;
 EntityObj interact_c := nil;
+EntityObj speak_c := nil;
 
 MappedObj := Object clone;
 MappedObj x := 0;
@@ -73,6 +74,8 @@ ClickObj direction := nil;
 
 InteractObj := Object clone;
 InteractObj label := nil;
+
+SpeakObj := Object clone;
 
 C := method(x, y, plane,
 	tile := TileObj clone;
@@ -281,6 +284,11 @@ EntityObj add_interact := method(label,
 	interact_c label = label;
 
 	interact_c;
+);
+
+EntityObj add_speak := method(
+	speak_c = SpeakObj clone;
+	speak_c;
 );
 
 SpriteObj enable_scaling := method(enabled,

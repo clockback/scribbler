@@ -55,6 +55,7 @@ micah add_animate("assets/images/characters/micah") \
 	load_sprite("WALK_RIGHT_5", "right_walk_5.png") \
 	load_sprite("WALK_RIGHT_6", "right_walk_6.png") \
 	use_sprite("STAND_FORWARDS");
+micah add_speak;
 
 rubbish_bin := Create entity("Rubbish bin", "world");
 rubbish_bin add_mapped(0.4, 0.0, ground_floor);

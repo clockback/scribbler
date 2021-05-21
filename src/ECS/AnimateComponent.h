@@ -21,10 +21,6 @@
 #ifndef __ANIMATE_COMPONENT_H__
 #define __ANIMATE_COMPONENT_H__
 
-#include "ECS.h"
-#include "MappedComponent.h"
-#include "MoveComponent.h"
-
 typedef enum {
 	STAND_FORWARDS,
 	STAND_BACKWARDS,
@@ -57,7 +53,14 @@ typedef enum {
 	MAX_ANIMATION_FRAMES
 } animation_frames;
 
-typedef struct {
+typedef struct AnimateComponent AnimateComponent;
+typedef AnimateComponent * AnimateComponentPtr;
+
+#include "ECS.h"
+#include "MappedComponent.h"
+#include "MoveComponent.h"
+
+struct AnimateComponent {
 	Component base_component;
 	SDL_Texture * images[MAX_ANIMATION_FRAMES];
 	SDL_Rect * source_rects[MAX_ANIMATION_FRAMES];
@@ -70,7 +73,7 @@ typedef struct {
 	bool display;
 	int i;
 	int count;
-} AnimateComponent;
+};
 
 typedef AnimateComponent * AnimateComponentPtr;
 
