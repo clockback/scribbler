@@ -28,6 +28,7 @@ typedef EntityJourneyToAction * EntityJourneyToActionPtr;
 
 #include "../Action.h"
 #include "../EntityGetter.h"
+#include "../PlaneGetter.h"
 #include "../../ECS/JourneyComponent.h"
 #include "../../ECS/MappedComponent.h"
 
@@ -35,11 +36,14 @@ struct EntityJourneyToAction {
 	EntityGetterPtr entity;
 	NumericPtr x;
 	NumericPtr y;
-	PlanePtr plane;
+	PlaneGetterPtr plane;
 	bool started;
 };
 
-void EntityJourneyToAction_init(void * me, va_list * args);
+void EntityJourneyToAction_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 bool EntityJourneyToAction_run(void * me);
 
 #endif

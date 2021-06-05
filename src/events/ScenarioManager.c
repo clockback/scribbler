@@ -14,12 +14,26 @@ void Trigger_delete(TriggerPtr me) {
 }
 
 void Listener_init(
-	ListenerPtr me, TriggerType type, int priority, va_list * args
+	ListenerPtr me, IoObject * base, IoHandler * io_handler, GamePtr game,
+	int priority
 ) {
-	me->type = type;
+	const char * trigger_type_name = IoObject_name(base);
+
+	if (strcmp(trigger_type_name, "InteractEntityTriggerObj") == 0) {
+		me->type = INTERACT_ENTITY;
+	}
+	else {
+		printf("Unknown trigger type: %s\n", trigger_type_name);
+		IoObject_print(base);
+		printf("\n");
+		exit(-1);
+	}
+
+	me->particulars = (void *) malloc(trigger_sizes[me->type]);
 	me->priority = priority;
-	me->particulars = (void *) malloc(trigger_sizes[type]);
-	init_for_trigger_functions[type](me->particulars, args);
+	init_for_listener_functions[me->type](
+		me->particulars, base, io_handler, game
+	);
 }
 
 bool Listener_catch_trigger(ListenerPtr me, TriggerPtr trigger) {
@@ -32,10 +46,45 @@ bool Listener_catch_trigger(ListenerPtr me, TriggerPtr trigger) {
 	) == 0;
 }
 
-void Condition_init(ConditionPtr me, ConditionType type, va_list * args) {
-	me->type = type;
-	me->particulars = (void *) malloc(condition_sizes[type]);
-	init_for_condition_functions[type](me->particulars, args);
+void Condition_init(
+	ConditionPtr me, IoObject * base, IoHandler * io_handler, GamePtr game
+) {
+	const char * condition_type_name = IoObject_name(base);
+
+	if (strcmp(condition_type_name, "NumericEqualToConditionObj") == 0) {
+		me->type = NUMERIC_EQUAL_TO;
+	}
+	else if (strcmp(
+		condition_type_name, "NumericGreaterThanConditionObj"
+	) == 0) {
+		me->type = NUMERIC_GREATER_THAN;
+	}
+	else if (strcmp(
+		condition_type_name, "NumericGreaterThanOrEqualToConditionObj"
+	) == 0) {
+		me->type = NUMERIC_GREATER_THAN_OR_EQUAL_TO;
+	}
+	else if (strcmp(
+		condition_type_name, "NumericLessThanConditionObj"
+	) == 0) {
+		me->type = NUMERIC_LESS_THAN;
+	}
+	else if (strcmp(
+		condition_type_name, "NumericLessThanOrEqualToConditionObj"
+	) == 0) {
+		me->type = NUMERIC_LESS_THAN_OR_EQUAL_TO;
+	}
+	else {
+		printf("Unknown condition type: %s\n", condition_type_name);
+		IoObject_print(base);
+		printf("\n");
+		exit(-1);
+	}
+
+	me->particulars = (void *) malloc(condition_sizes[me->type]);
+	init_for_condition_functions[me->type](
+		me->particulars, base, io_handler, game
+	);
 }
 
 bool Condition_check(ConditionPtr me) {
@@ -43,12 +92,41 @@ bool Condition_check(ConditionPtr me) {
 }
 
 void Action_init(
-	ActionPtr me, ActionType type, va_list * args
+	ActionPtr me, IoObject * base, IoHandler * io_handler, GamePtr game
 ) {
-	me->type = type;
-	me->is_async = false;
-	me->particulars = (void *) malloc(action_sizes[type]);
-	init_for_action_functions[type](me->particulars, args);
+	const char * action_type_name = IoObject_name(base);
+
+	if (strcmp(action_type_name, "EntityJourneyToActionObj") == 0) {
+		me->type = ENTITY_JOURNEY_TO;
+	}
+	else if (strcmp(action_type_name, "SetUserInputActionObj") == 0) {
+		me->type = SET_USER_INPUT;
+	}
+	else if (strcmp(action_type_name, "SpeakActionObj") == 0) {
+		me->type = SPEAK;
+	}
+	else if (strcmp(action_type_name, "WaitActionObj") == 0) {
+		me->type = WAIT;
+	}
+	else {
+		printf("Unknown action type: %s\n", action_type_name);
+		IoObject_print(base);
+		printf("\n");
+		exit(-1);
+	}
+
+	IoSymbol * get_async = IoState_symbolWithCString_(
+		io_handler->iostate, "async"
+	);
+	IoObject * is_async = IoObject_getSlot_(base, get_async);
+	if (ISNUMBER(is_async)) {
+		me->is_async = (bool)IoNumber_asInt(is_async);
+	}
+
+	me->particulars = (void *) malloc(action_sizes[me->type]);
+	init_for_action_functions[me->type](
+		me->particulars, base, io_handler, game
+	);
 }
 
 void Action_make_async(ActionPtr me) {
@@ -59,79 +137,41 @@ bool Action_run(ActionPtr me) {
 	return run_for_action_functions[me->type](me->particulars);
 }
 
-void Scenario_init(ScenarioPtr me) {
-	me->listeners = (ListenerPtr *) malloc(0);
-	me->conditions = (ConditionPtr *) malloc(0);
-	me->actions = (ActionPtr *) malloc(0);
+void Scenario_init(
+	ScenarioPtr me, size_t no_listeners, size_t no_conditions,
+	size_t no_actions
+) {
+	me->listeners = (ListenerPtr *) malloc(no_listeners * sizeof(ListenerPtr));
+	me->conditions = (ConditionPtr *) malloc(
+		no_conditions * sizeof(ConditionPtr)
+	);
+	me->actions = (ActionPtr *) malloc(no_actions * sizeof(ActionPtr));
 	me->numerics = (NumericPtr *) malloc(0);
 	me->entity_getters = (EntityGetterPtr *) malloc(0);
 	me->strings = (StringPtr *) malloc(0);
+	me->plane_getters = (PlaneGetterPtr *) malloc(0);
 	me->action_queues = (ActionQueuePtr *) malloc(0);
 
-	me->no_listeners = 0;
-	me->no_conditions = 0;
-	me->no_actions = 0;
+	me->no_listeners = no_listeners;
+	me->no_conditions = no_conditions;
+	me->no_actions = no_actions;
 	me->no_numerics = 0;
 	me->no_entity_getters = 0;
 	me->no_strings = 0;
+	me->no_plane_getters = 0;
 	me->no_action_queues = 0;
 
+	for (size_t i = 0; i < no_listeners; i ++) {
+		me->listeners[i] = (ListenerPtr)malloc(sizeof(Listener));
+	}
+	for (size_t i = 0; i < no_conditions; i ++) {
+		me->conditions[i] = (ConditionPtr)malloc(sizeof(Condition));
+	}
+	for (size_t i = 0; i < no_actions; i ++) {
+		me->actions[i] = (ActionPtr)malloc(sizeof(Action));
+	}
+
 	me->active = true;
-}
-
-ListenerPtr Scenario_add_listener(
-	ScenarioPtr me, TriggerType type, int priority, size_t no_args, ...
-) {
-	me->no_listeners ++;
-	me->listeners = (ListenerPtr *) realloc(
-		me->listeners, me->no_listeners * sizeof(ListenerPtr)
-	);
-	me->listeners[me->no_listeners - 1] = (ListenerPtr) malloc(
-		sizeof(Listener)
-	);
-
-	va_list args;
-	va_start(args, no_args);
-	Listener_init(me->listeners[me->no_listeners - 1], type, priority, &args);
-	va_end(args);
-
-	return me->listeners[me->no_listeners - 1];
-}
-
-ConditionPtr Scenario_add_condition(
-	ScenarioPtr me, ConditionType type, size_t no_args, ...
-) {
-	me->no_conditions ++;
-	me->conditions = (ConditionPtr *) realloc(
-		me->conditions, me->no_conditions * sizeof(ConditionPtr)
-	);
-	me->conditions[me->no_conditions - 1] = (ConditionPtr) malloc(
-		sizeof(Condition)
-	);
-
-	va_list args;
-	va_start(args, no_args);
-	Condition_init(me->conditions[me->no_conditions - 1], type, &args);
-	va_end(args);
-
-	return me->conditions[me->no_conditions - 1];
-}
-
-ActionPtr Scenario_add_action(
-	ScenarioPtr me, ActionType type, size_t no_args, ...
-) {
-	me->no_actions ++;
-	me->actions = (ActionPtr *) realloc(
-		me->actions, me->no_actions * sizeof(ActionPtr)
-	);
-	me->actions[me->no_actions - 1] = (ActionPtr) malloc(sizeof(Action));
-
-	va_list args;
-	va_start(args, no_args);
-	Action_init(me->actions[me->no_actions - 1], type, &args);
-	va_end(args);
-
-	return me->actions[me->no_actions - 1];
 }
 
 ActionQueuePtr Scenario_add_action_queue(ScenarioPtr me) {
@@ -147,61 +187,6 @@ ActionQueuePtr Scenario_add_action_queue(ScenarioPtr me) {
 	);
 
 	return me->action_queues[me->no_action_queues - 1];
-}
-
-NumericPtr Scenario_add_numeric(
-	ScenarioPtr me, NumericType type, size_t no_args, ...
-) {
-	me->no_numerics ++;
-	me->numerics = (NumericPtr *) realloc(
-		me->numerics, me->no_numerics * sizeof(NumericPtr)
-	);
-	me->numerics[me->no_numerics - 1] = (NumericPtr) malloc(sizeof(Numeric));
-
-	va_list args;
-	va_start(args, no_args);
-	Numeric_init(me->numerics[me->no_numerics - 1], type, &args);
-	va_end(args);
-
-	return me->numerics[me->no_numerics - 1];
-}
-
-EntityGetterPtr Scenario_add_entity_getter(
-	ScenarioPtr me, EntityGetterType type, size_t no_args, ...
-) {
-	me->no_entity_getters ++;
-	me->entity_getters = (EntityGetterPtr *) realloc(
-		me->entity_getters, me->no_entity_getters * sizeof(EntityGetterPtr)
-	);
-	me->entity_getters[me->no_entity_getters - 1] = (EntityGetterPtr) malloc(
-		sizeof(EntityGetter)
-	);
-
-	va_list args;
-	va_start(args, no_args);
-	EntityGetter_init(
-		me->entity_getters[me->no_entity_getters - 1], type, &args
-	);
-	va_end(args);
-
-	return me->entity_getters[me->no_entity_getters - 1];
-}
-
-StringPtr Scenario_add_string(
-	ScenarioPtr me, StringType type, size_t no_args, ...
-) {
-	me->no_strings ++;
-	me->strings = (StringPtr *) realloc(
-		me->strings, me->no_strings * sizeof(StringPtr)
-	);
-	me->strings[me->no_strings - 1] = (StringPtr) malloc(sizeof(String));
-
-	va_list args;
-	va_start(args, no_args);
-	String_init(me->strings[me->no_strings - 1], type, &args);
-	va_end(args);
-
-	return me->strings[me->no_strings - 1];
 }
 
 void Scenario_check_conditions(ScenarioPtr me) {
@@ -228,9 +213,13 @@ void ScenarioManager_init(ScenarioManagerPtr me) {
 	init_numerics();
 	init_entity_getters();
 	init_strings();
+	init_plane_getters();
 }
 
-ScenarioPtr ScenarioManager_add_scenario(ScenarioManagerPtr me) {
+ScenarioPtr ScenarioManager_add_scenario(
+	ScenarioManagerPtr me, size_t no_listeners, size_t no_conditions,
+	size_t no_actions
+) {
 	me->no_scenarios ++;
 	me->scenarios = (ScenarioPtr *) realloc(
 		me->scenarios, me->no_scenarios * sizeof(ScenarioPtr)
@@ -239,7 +228,10 @@ ScenarioPtr ScenarioManager_add_scenario(ScenarioManagerPtr me) {
 		sizeof(Scenario)
 	);
 
-	Scenario_init(me->scenarios[me->no_scenarios - 1]);
+	Scenario_init(
+		me->scenarios[me->no_scenarios - 1], no_listeners, no_conditions,
+		no_actions
+	);
 
 	return me->scenarios[me->no_scenarios - 1];
 }

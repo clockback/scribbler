@@ -21,21 +21,28 @@
 #ifndef __IO_HANDLER_H__
 #define __IO_HANDLER_H__
 
+typedef struct IoHandler IoHandler;
+typedef IoHandler * IoHandlerPtr;
+
 #include "io/IoState.h"
 #include "io/IoObject.h"
 #include "io/IoList.h"
 #include "io/IoNumber.h"
-
 #include "./game.h"
 #include "../groups.h"
+#include "../events/Numeric.h"
+#include "../events/PlaneGetter.h"
+#include "../events/String.h"
 
-typedef struct {
+struct IoHandler {
     char * code;
-	IoState *iostate;
+	IoState * iostate;
 	GamePtr game;
-} IoHandler;
 
-typedef IoHandler * IoHandlerPtr;
+	size_t no_to_instantiate;
+	IoObject ** to_instantiate;
+	void ** addresses;
+};
 
 void IoHandler_init(IoHandlerPtr me, GamePtr game, const char * filename);
 void IoHandler_load_file(IoHandlerPtr me, const char * filename);
@@ -66,6 +73,33 @@ void IoHandler_get_interact_component(
 );
 void IoHandler_get_speak_component(
 	IoHandlerPtr me, GamePtr game, IoObject * io_entity, EntityPtr entity
+);
+void IoHandler_process(IoHandlerPtr me, IoObject * object, void * address);
+void IoHandler_get_scenarios(IoHandlerPtr me, GamePtr game);
+void IoHandler_get_listener(
+	IoHandlerPtr me, GamePtr game, IoObject * io_trigger, ListenerPtr trigger
+);
+void IoHandler_get_condition(
+	IoHandlerPtr me, GamePtr game, IoObject * io_condition,
+	ConditionPtr condition
+);
+void IoHandler_get_action(
+	IoHandlerPtr me, GamePtr game, IoObject * io_action, ActionPtr action
+);
+void IoHandler_get_numeric(
+	IoHandlerPtr me, GamePtr game, IoObject * io_numeric, NumericPtr numeric
+);
+void IoHandler_get_entity_getter(
+	IoHandlerPtr me, GamePtr game, IoObject * io_entity_getter,
+	EntityGetterPtr entity_getter
+);
+void IoHandler_get_string(
+	IoHandlerPtr me, GamePtr game, IoObject * io_entity_getter,
+	StringPtr string
+);
+void IoHandler_get_plane_getter(
+	IoHandlerPtr me, GamePtr game, IoObject * io_plane_getter,
+	PlaneGetterPtr plane_getter
 );
 
 RoomPtr IoHandler_get_room(IoHandlerPtr me, GamePtr game, IoObject * io_room);

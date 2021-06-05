@@ -27,6 +27,10 @@ void IoHandler_init(IoHandlerPtr me, GamePtr game, const char * filename) {
 	me->iostate = IoState_new();
 	IoState_init(me->iostate);
 
+	me->no_to_instantiate = 0;
+	me->to_instantiate = (IoObject **)malloc(0);
+	me->addresses = (void **)malloc(0);
+
 	IoHandler_load_file(me, filename);
 }
 
@@ -441,6 +445,238 @@ void IoHandler_get_speak_component(
 	}
 
 	Entity_add_component(entity, SPEAK_COMPONENT, 1, game->font);
+}
+
+void IoHandler_process(IoHandlerPtr me, IoObject * object, void * address) {
+	me->no_to_instantiate ++;
+	me->to_instantiate = (IoObject **)realloc(
+		me->to_instantiate, me->no_to_instantiate * sizeof(IoObject *)
+	);
+	me->to_instantiate[me->no_to_instantiate - 1] = object;
+	me->addresses = (void **)realloc(
+		me->addresses, me->no_to_instantiate * sizeof(void *)
+	);
+	me->addresses[me->no_to_instantiate - 1] = address;
+}
+
+void IoHandler_get_scenarios(IoHandlerPtr me, GamePtr game) {
+	IoObject *v = IoState_doCString_(me->iostate, "Get scenarios");
+	size_t no_scenarios = IoList_rawSize(v);
+	ScenarioManagerPtr sm = game->scenario_manager;
+
+	IoSymbol * get_triggers = IoState_symbolWithCString_(
+		me->iostate, "triggers"
+	);
+	IoSymbol * get_conditions = IoState_symbolWithCString_(
+		me->iostate, "conditions"
+	);
+	IoSymbol * get_actions = IoState_symbolWithCString_(
+		me->iostate, "actions"
+	);
+
+	for (size_t i = 0; i < no_scenarios; i ++) {
+		IoObject * io_scenario = IoList_rawAt_(v, i);
+
+		IoObject * io_triggers = IoObject_getSlot_(io_scenario, get_triggers);
+		size_t no_triggers = IoList_rawSize(io_triggers);
+
+		IoObject * io_conditions = IoObject_getSlot_(
+			io_scenario, get_conditions
+		);
+		size_t no_conditions = IoList_rawSize(io_conditions);
+
+		IoObject * io_actions = IoObject_getSlot_(io_scenario, get_actions);
+		size_t no_actions = IoList_rawSize(io_actions);
+
+		ScenarioPtr scenario = ScenarioManager_add_scenario(
+			sm, no_triggers, no_conditions, no_actions
+		);
+
+		for (size_t j = 0; j < no_triggers; j ++) {
+			IoObject * io_trigger = IoList_rawAt_(io_triggers, j);
+			IoHandler_process(me, io_trigger, scenario->listeners[j]);
+		}
+
+		for (size_t j = 0; j < no_conditions; j ++) {
+			IoObject * io_condition = IoList_rawAt_(io_conditions, j);
+			IoHandler_process(me, io_condition, scenario->conditions[j]);
+		}
+
+		for (size_t j = 0; j < no_actions; j ++) {
+			IoObject * io_action = IoList_rawAt_(io_actions, j);
+			IoHandler_process(me, io_action, scenario->actions[j]);
+		}
+	}
+
+	// Continues to instantiate objects until all scenarios are completed.
+	while (me->no_to_instantiate > 0) {
+		IoObject * object = me->to_instantiate[0];
+		void * address = me->addresses[0];
+
+		for (size_t i = 1; i < me->no_to_instantiate; i ++) {
+			me->to_instantiate[i - 1] = me->to_instantiate[i];
+			me->addresses[i - 1] = me->addresses[i];
+		}
+		me->no_to_instantiate --;
+		me->to_instantiate = (IoObject **)realloc(
+			me->to_instantiate, me->no_to_instantiate * sizeof(IoObject *)
+		);
+		me->addresses = (void **)realloc(
+			me->addresses, me->no_to_instantiate * sizeof(void *)
+		);
+
+		const char * name = IoObject_name(object);
+
+		if (strcmp(name, "TriggerObj") == 0) {
+			IoHandler_get_listener(me, game, object, (ListenerPtr)address);
+		}
+		else if (strcmp(name, "ConditionObj") == 0) {
+			IoHandler_get_condition(me, game, object, (ConditionPtr)address);
+		}
+		else if (strcmp(name, "ActionObj") == 0) {
+			IoHandler_get_action(me, game, object, (ActionPtr)address);
+		}
+		else if (ISNUMBER(object) || strcmp(name, "NumericObj") == 0) {
+			IoHandler_get_numeric(me, game, object, (NumericPtr)address);
+		}
+		else if (
+			strcmp(name, "EntityObj") == 0
+			|| strcmp(name, "EntityGetterObj") == 0
+		) {
+			IoHandler_get_entity_getter(
+				me, game, object, (EntityGetterPtr)address
+			);
+		}
+		else if (ISSEQ(object) || strcmp(name, "StringObj") == 0) {
+			IoHandler_get_string(me, game, object, (StringPtr)address);
+		}
+		else if (strcmp(name, "PlaneObj") == 0) {
+			IoHandler_get_plane_getter(
+				me, game, object, (PlaneGetterPtr)address
+			);
+		}
+		else {
+			printf("IoObject found with unrecognized name: %s\n", name);
+			IoObject_print(object);
+			printf("\n");
+			exit(-1);
+		}
+	}
+
+	free(me->to_instantiate);
+	free(me->addresses);
+}
+
+void IoHandler_get_listener(
+	IoHandlerPtr me, GamePtr game, IoObject * io_trigger, ListenerPtr listener
+) {
+	IoSymbol * get_priority = IoState_symbolWithCString_(
+		me->iostate, "priority"
+	);
+	IoSymbol * get_particulars = IoState_symbolWithCString_(
+		me->iostate, "particulars"
+	);
+
+	IoObject * io_priority = IoObject_getSlot_(io_trigger, get_priority);
+	int priority = IoNumber_asInt(io_priority);
+	IoObject * io_particulars = IoObject_getSlot_(io_trigger, get_particulars);
+	Listener_init(listener, io_particulars, me, game, priority);
+}
+
+void IoHandler_get_condition(
+	IoHandlerPtr me, GamePtr game, IoObject * io_condition,
+	ConditionPtr condition
+) {
+	IoSymbol * get_particulars = IoState_symbolWithCString_(
+		me->iostate, "particulars"
+	);
+	IoObject * io_particulars = IoObject_getSlot_(
+		io_condition, get_particulars
+	);
+
+	Condition_init(condition, io_particulars, me, game);
+}
+
+void IoHandler_get_action(
+	IoHandlerPtr me, GamePtr game, IoObject * io_action, ActionPtr action
+) {
+	IoSymbol * get_particulars = IoState_symbolWithCString_(
+		me->iostate, "particulars"
+	);
+	IoObject * io_particulars = IoObject_getSlot_(io_action, get_particulars);
+
+	Action_init(action, io_particulars, me, game);
+}
+
+void IoHandler_get_numeric(
+	IoHandlerPtr me, GamePtr game, IoObject * io_numeric, NumericPtr numeric
+) {
+	if (ISNUMBER(io_numeric)) {
+		Numeric_init(numeric, io_numeric, me, game);
+		return;
+	}
+
+	IoSymbol * get_particulars = IoState_symbolWithCString_(
+		me->iostate, "particulars"
+	);
+	IoObject * io_particulars = IoObject_getSlot_(io_numeric, get_particulars);
+
+	Numeric_init(numeric, io_particulars, me, game);
+}
+
+void IoHandler_get_entity_getter(
+	IoHandlerPtr me, GamePtr game, IoObject * io_entity_getter,
+	EntityGetterPtr entity_getter
+) {
+	if (strcmp(IoObject_name(io_entity_getter), "EntityObj") == 0) {
+		EntityGetter_init(entity_getter, io_entity_getter, me, game);
+		return;
+	}
+
+	IoSymbol * get_particulars = IoState_symbolWithCString_(
+		me->iostate, "particulars"
+	);
+	IoObject * io_particulars = IoObject_getSlot_(
+		io_entity_getter, get_particulars
+	);
+
+	EntityGetter_init(entity_getter, io_particulars, me, game);
+}
+
+void IoHandler_get_string(
+	IoHandlerPtr me, GamePtr game, IoObject * io_string,
+	StringPtr string
+) {
+	if (ISSEQ(io_string)) {
+		String_init(string, io_string, me, game);
+		return;
+	}
+
+	IoSymbol * get_particulars = IoState_symbolWithCString_(
+		me->iostate, "particulars"
+	);
+	IoObject * io_particulars = IoObject_getSlot_(io_string, get_particulars);
+
+	String_init(string, io_particulars, me, game);
+}
+
+void IoHandler_get_plane_getter(
+	IoHandlerPtr me, GamePtr game, IoObject * io_plane_getter,
+	PlaneGetterPtr plane_getter
+) {
+	if (strcmp(IoObject_name(io_plane_getter), "PlaneObj") == 0) {
+		PlaneGetter_init(plane_getter, io_plane_getter, me, game);
+		return;
+	}
+
+	IoSymbol * get_particulars = IoState_symbolWithCString_(
+		me->iostate, "particulars"
+	);
+	IoObject * io_particulars = IoObject_getSlot_(
+		io_plane_getter, get_particulars
+	);
+
+	PlaneGetter_init(plane_getter, io_particulars, me, game);
 }
 
 RoomPtr IoHandler_get_room(IoHandlerPtr me, GamePtr game, IoObject * io_room) {

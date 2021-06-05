@@ -32,7 +32,10 @@ typedef NumericGreaterThanOrEqualToCondition * (
 	NumericGreaterThanOrEqualToConditionPtr
 );
 
-void NumericGreaterThanOrEqualToCondition_init(void * me, va_list * args);
+void NumericGreaterThanOrEqualToCondition_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 bool NumericGreaterThanOrEqualToCondition_evaluate(void * me);
 
 #endif

@@ -30,7 +30,10 @@ typedef struct {
 
 typedef NumericLessThanCondition * NumericLessThanConditionPtr;
 
-void NumericLessThanCondition_init(void * me, va_list * args);
+void NumericLessThanCondition_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 bool NumericLessThanCondition_evaluate(void * me);
 
 #endif

@@ -43,7 +43,7 @@ struct EntityGetter {
 };
 
 void EntityGetter_init(
-	EntityGetterPtr me, EntityGetterType type, va_list * args
+	EntityGetterPtr me, IoObject * base, IoHandler * io_handler, GamePtr game
 );
 EntityPtr EntityGetter_evaluate(EntityGetterPtr me);
 
@@ -56,7 +56,8 @@ void init_entity_getters();
 #include "entity_getters/EntityWithNameEntityGetter.h"
 
 extern void (*init_for_entity_getter_functions[MAX_ENTITY_GETTERS]) (
-	void * me_void, va_list * args
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
 );
 
 extern EntityPtr (*evaulate_for_entity_getter_functions[MAX_ENTITY_GETTERS]) (

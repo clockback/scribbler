@@ -36,7 +36,10 @@ struct SpeakAction {
 	bool started;
 };
 
-void SpeakAction_init(void * me, va_list * args);
+void SpeakAction_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 bool SpeakAction_run(void * me);
 
 #endif

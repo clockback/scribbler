@@ -32,7 +32,10 @@ typedef NumericLessThanOrEqualToCondition * (
 	NumericLessThanOrEqualToConditionPtr
 );
 
-void NumericLessThanOrEqualToCondition_init(void * me, va_list * args);
+void NumericLessThanOrEqualToCondition_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 bool NumericLessThanOrEqualToCondition_evaluate(void * me);
 
 #endif

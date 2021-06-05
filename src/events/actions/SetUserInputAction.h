@@ -32,7 +32,10 @@ struct SetUserInputAction {
 	bool allow_user_input;
 };
 
-void SetUserInputAction_init(void * me, va_list * args);
+void SetUserInputAction_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 bool SetUserInputAction_run(void * me);
 
 #endif

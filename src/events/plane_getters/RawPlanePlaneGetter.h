@@ -18,37 +18,22 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __TRIGGER_H__
-#define __TRIGGER_H__
+#ifndef __RAWPLANEPLANEGETTER_H__
+#define __RAWPLANEPLANEGETTER_H__
 
-#include <stdarg.h>
-#include <stddef.h>
+#include "../PlaneGetter.h"
+#include "../../objects/room.h"
 
-typedef enum {
-	INTERACT_ENTITY,
-	MAX_TRIGGERS
-} TriggerType;
+typedef struct {
+    PlanePtr plane;
+} RawPlanePlaneGetter;
 
-#include "io/IoObject.h"
-#include "../objects/IoHandler.h"
+typedef RawPlanePlaneGetter * RawPlanePlaneGetterPtr;
 
-extern size_t trigger_sizes[MAX_TRIGGERS];
-
-void pre_init_trigger_functions();
-void pre_init_trigger_sizes();
-void pre_init_listener_functions();
-void init_triggers();
-
-#include "triggers/InteractEntityTrigger.h"
-
-extern void (*init_for_trigger_functions[MAX_TRIGGERS]) (
-	void * me_void, va_list * args
-);
-
-extern void (*init_for_listener_functions[MAX_TRIGGERS]) (
+void RawPlanePlaneGetter_init(
 	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
 	GamePtr game
 );
-
+PlanePtr RawPlanePlaneGetter_evaluate(void * me);
 
 #endif

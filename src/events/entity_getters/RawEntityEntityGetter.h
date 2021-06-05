@@ -30,7 +30,10 @@ typedef struct {
 
 typedef RawEntityEntityGetter * RawEntityEntityGetterPtr;
 
-void RawEntityEntityGetter_init(void * me, va_list * args);
+void RawEntityEntityGetter_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 EntityPtr RawEntityEntityGetter_evaluate(void * me);
 
 #endif

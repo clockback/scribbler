@@ -42,7 +42,7 @@ struct String {
 };
 
 void String_init(
-	StringPtr me, StringType type, va_list * args
+	StringPtr me, IoObject * base, IoHandler * io_handler, GamePtr game
 );
 char * String_evaluate(StringPtr me);
 
@@ -54,11 +54,10 @@ void init_strings();
 #include "strings/RawStringString.h"
 
 extern void (*init_for_string_functions[MAX_STRINGS]) (
-	void * me_void, va_list * args
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
 );
 
-extern char * (*evaulate_for_string_functions[MAX_STRINGS]) (
-	void * me_void
-);
+extern char * (*evaulate_for_string_functions[MAX_STRINGS]) (void * me_void);
 
 #endif

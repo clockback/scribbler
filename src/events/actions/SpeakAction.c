@@ -2,17 +2,44 @@
 
 #include "SpeakAction.h"
 
-void SpeakAction_init(void * me_void, va_list * args) {
+void SpeakAction_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+) {
 	SpeakActionPtr me = (SpeakActionPtr)me_void;
-	me->entity = va_arg(*args, EntityGetterPtr);
-	me->text = va_arg(*args, StringPtr);
-	me->duration = va_arg(*args, NumericPtr);
+
+	IoSymbol * get_entity = IoState_symbolWithCString_(
+		io_handler->iostate, "entity"
+	);
+	IoSymbol * get_text = IoState_symbolWithCString_(
+		io_handler->iostate, "text"
+	);
+	IoSymbol * get_duration = IoState_symbolWithCString_(
+		io_handler->iostate, "duration"
+	);
+
+	IoObject * io_entity = IoObject_getSlot_(io_particulars, get_entity);
+	IoObject * io_text = IoObject_getSlot_(io_particulars, get_text);
+	IoObject * io_duration = IoObject_getSlot_(io_particulars, get_duration);
+
+	me->entity = (EntityGetterPtr)malloc(sizeof(EntityGetter));
+	me->text = (StringPtr)malloc(sizeof(String));
+	me->duration = (NumericPtr)malloc(sizeof(Numeric));
+
+	IoHandler_process(io_handler, io_entity, me->entity);
+	IoHandler_process(io_handler, io_text, me->text);
+	IoHandler_process(io_handler, io_duration, me->duration);
+
 	me->started = false;
-	me->i = (int)Numeric_evaluate(me->duration);
+	me->i = -1;
 }
 
 bool SpeakAction_run(void * me_void) {
 	SpeakActionPtr me = (SpeakActionPtr)me_void;
+
+	if (me->i == -1) {
+		me->i = (int)Numeric_evaluate(me->duration);
+	}
 
 	if (!me->started) {
 		me->started = true;

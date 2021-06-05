@@ -3,7 +3,8 @@
 
 size_t action_sizes[MAX_ACTIONS];
 void (*init_for_action_functions[MAX_ACTIONS]) (
-	void * me_void, va_list * args
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
 );
 bool (*run_for_action_functions[MAX_ACTIONS]) (void * me_void);
 

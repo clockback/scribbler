@@ -23,14 +23,24 @@
 
 #include <stdbool.h>
 
-#include "../../ECS/ECS.h"
+#include "io/IoState.h"
 
-typedef struct {
-    EntityPtr object;
-} InteractEntityTrigger;
-
+typedef struct InteractEntityTrigger InteractEntityTrigger;
 typedef InteractEntityTrigger * InteractEntityTriggerPtr;
 
-void InteractEntityTrigger_init(void * me, va_list * args);
+#include "../../ECS/ECS.h"
+#include "../ScenarioManager.h"
+#include "../../objects/IoHandler.h"
+
+struct InteractEntityTrigger {
+    EntityPtr object;
+};
+
+void InteractEntityTrigger_init(void * me_void, va_list * args);
+
+void InteractEntityTrigger_listener_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 
 #endif

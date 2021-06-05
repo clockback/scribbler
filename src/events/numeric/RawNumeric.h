@@ -30,7 +30,10 @@ typedef struct {
 
 typedef RawNumeric * RawNumericPtr;
 
-void RawNumeric_init(void * me, va_list * args);
+void RawNumeric_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 double RawNumeric_evaluate(void * me);
 
 #endif

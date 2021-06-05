@@ -29,7 +29,10 @@ typedef struct {
 
 typedef RawStringString * RawStringStringPtr;
 
-void RawStringString_init(void * me, va_list * args);
+void RawStringString_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 char * RawStringString_evaluate(void * me);
 
 #endif

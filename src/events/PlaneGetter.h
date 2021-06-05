@@ -18,42 +18,49 @@
  *  along with Scribbler.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef __CONDITION_H__
-#define __CONDITION_H__
+#ifndef __PLANEGETTER_H__
+#define __PLANEGETTER_H__
 
 #include <stdarg.h>
 #include <stddef.h>
 
+typedef struct PlaneGetter PlaneGetter;
+typedef PlaneGetter * PlaneGetterPtr;
+
 typedef enum {
-	NUMERIC_LESS_THAN,
-	NUMERIC_LESS_THAN_OR_EQUAL_TO,
-	NUMERIC_GREATER_THAN,
-	NUMERIC_GREATER_THAN_OR_EQUAL_TO,
-	NUMERIC_EQUAL_TO,
-	MAX_CONDITIONS
-} ConditionType;
+	RAW_PLANE,
+	MAX_PLANE_GETTERS
+} PlaneGetterType;
 
-extern size_t condition_sizes[MAX_CONDITIONS];
+#include "../objects/room.h"
+#include "../objects/IoHandler.h"
 
-void pre_init_condition_functions();
-void pre_init_condition_sizes();
-void pre_init_condition_evaluate();
-void init_conditions();
+extern size_t plane_getter_sizes[MAX_PLANE_GETTERS];
 
-#include "conditions/NumericLessThanCondition.h"
-#include "conditions/NumericLessThanOrEqualToCondition.h"
-#include "conditions/NumericGreaterThanOrEqualToCondition.h"
-#include "conditions/NumericGreaterThanCondition.h"
-#include "conditions/NumericEqualToCondition.h"
+struct PlaneGetter {
+	PlaneGetterType type;
+	void * particulars;
+};
 
-extern void (*init_for_condition_functions[MAX_CONDITIONS]) (
+void PlaneGetter_init(
+	PlaneGetterPtr me, IoObject * base, IoHandler * io_handler, GamePtr game
+);
+PlanePtr PlaneGetter_evaluate(PlaneGetterPtr me);
+
+void pre_init_plane_getter_functions();
+void pre_init_plane_getter_sizes();
+void pre_init_plane_getter_evaluate();
+void init_plane_getters();
+
+#include "plane_getters/RawPlanePlaneGetter.h"
+
+extern void (*init_for_plane_getter_functions[MAX_PLANE_GETTERS]) (
 	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
 	GamePtr game
 );
 
-extern bool (*evaluate_for_condition_functions[MAX_CONDITIONS]) (
+extern PlanePtr (*evaulate_for_plane_getter_functions[MAX_PLANE_GETTERS]) (
 	void * me_void
 );
-
 
 #endif

@@ -2,13 +2,38 @@
 
 #include "EntityJourneyToAction.h"
 
-void EntityJourneyToAction_init(void * me_void, va_list * args) {
+#include "../EntityGetter.h"
+
+void EntityJourneyToAction_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+) {
 	EntityJourneyToActionPtr me = (EntityJourneyToActionPtr)me_void;
-	me->entity = va_arg(*args, EntityGetterPtr);
-	me->x = va_arg(*args, NumericPtr);
-	me->y = va_arg(*args, NumericPtr);
-	me->plane = va_arg(*args, PlanePtr);
+
+	IoSymbol * get_entity = IoState_symbolWithCString_(
+		io_handler->iostate, "entity"
+	);
+	IoSymbol * get_x = IoState_symbolWithCString_(io_handler->iostate, "x");
+	IoSymbol * get_y = IoState_symbolWithCString_(io_handler->iostate, "y");
+	IoSymbol * get_plane = IoState_symbolWithCString_(
+		io_handler->iostate, "plane"
+	);
+
+	IoObject * io_entity = IoObject_getSlot_(io_particulars, get_entity);
+	IoObject * io_x = IoObject_getSlot_(io_particulars, get_x);
+	IoObject * io_y = IoObject_getSlot_(io_particulars, get_y);
+	IoObject * io_plane = IoObject_getSlot_(io_particulars, get_plane);
+
+	me->entity = (EntityGetterPtr)malloc(sizeof(EntityGetter));
+	me->x = (NumericPtr)malloc(sizeof(Numeric));
+	me->y = (NumericPtr)malloc(sizeof(Numeric));
+	me->plane = (PlaneGetterPtr)malloc(sizeof(PlaneGetter));
 	me->started = false;
+
+	IoHandler_process(io_handler, io_entity, me->entity);
+	IoHandler_process(io_handler, io_x, me->x);
+	IoHandler_process(io_handler, io_y, me->y);
+	IoHandler_process(io_handler, io_plane, me->plane);
 }
 
 bool EntityJourneyToAction_run(void * me_void) {
@@ -28,9 +53,9 @@ bool EntityJourneyToAction_run(void * me_void) {
 	int int_y = (int)y;
 
 	if (!me->started) {
-		JourneyComponent_journey_to(
-			journey, Plane_get_tile(me->plane, int_x, int_y), x, y
-		);
+		JourneyComponent_journey_to(journey, Plane_get_tile(
+			PlaneGetter_evaluate(me->plane), int_x, int_y
+		), x, y);
 		me->started = true;
 	}
 

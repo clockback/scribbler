@@ -2,9 +2,20 @@
 
 #include "EntityGetY.h"
 
-void EntityGetY_init(void * me_void, va_list * args) {
-	EntityGetYPtr me = (EntityGetYPtr)me_void;
-	me->entity = va_arg(*args, EntityGetterPtr);
+void EntityGetY_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+) {
+	EntityGetXPtr me = (EntityGetXPtr)me_void;
+
+	IoSymbol * get_entity = IoState_symbolWithCString_(
+		io_handler->iostate, "entity"
+	);
+	IoObject * io_entity = IoObject_getSlot_(io_particulars, get_entity);
+
+	me->entity = (EntityGetterPtr)malloc(sizeof(EntityGetter));
+
+	IoHandler_process(io_handler, io_entity, me->entity);
 }
 
 double EntityGetY_evaluate(void * me_void) {

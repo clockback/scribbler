@@ -31,6 +31,8 @@ scribbler:
 		src/events/entity_getters/EntityWithNameEntityGetter.c \
 		src/events/String.c \
 		src/events/strings/RawStringString.c \
+		src/events/PlaneGetter.c \
+		src/events/plane_getters/RawPlanePlaneGetter.c \
 		src/ECS/Components.c \
 		src/ECS/ECS.c \
 		src/ECS/MoveComponent.c \
@@ -49,5 +51,6 @@ scribbler:
 		-ldl \
 		-lm \
 		-Wall \
+		-fmax-errors=1 \
 		-o \
 	scribbler.bin

@@ -4,15 +4,37 @@
 size_t numeric_sizes[MAX_NUMERICS];
 
 void (*init_for_numeric_functions[MAX_NUMERICS]) (
-	void * me_void, va_list * args
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
 );
 
 double (*evaulate_for_numeric_functions[MAX_NUMERICS]) (void * me_void);
 
-void Numeric_init(NumericPtr me, NumericType type, va_list * args) {
-	me->type = type;
-	me->particulars = (void *) malloc(numeric_sizes[type]);
-	init_for_numeric_functions[type](me->particulars, args);
+void Numeric_init(
+	NumericPtr me, IoObject * base, IoHandler * io_handler, GamePtr game
+) {
+	const char * numeric_type_name = IoObject_name(base);
+
+	if (ISNUMBER(base)) {
+		me->type = RAW_NUMERIC;
+	}
+	else if (strcmp(numeric_type_name, "EntityGetXNumericObj") == 0) {
+		me->type = ENTITY_GET_X;
+	}
+	else if (strcmp(numeric_type_name, "EntityGetYNumericObj") == 0) {
+		me->type = ENTITY_GET_Y;
+	}
+	else {
+		printf("Unknown numeric type: %s\n", numeric_type_name);
+		IoObject_print(base);
+		printf("\n");
+		exit(-1);
+	}
+
+	me->particulars = (void *) malloc(numeric_sizes[me->type]);
+	init_for_numeric_functions[me->type](
+		me->particulars, base, io_handler, game
+	);
 }
 
 double Numeric_evaluate(NumericPtr me) {

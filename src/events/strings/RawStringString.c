@@ -2,10 +2,13 @@
 
 #include "RawStringString.h"
 
-void RawStringString_init(void * me_void, va_list * args) {
+void RawStringString_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+) {
 	RawStringStringPtr me = (RawStringStringPtr)me_void;
 
-	char * string = va_arg(*args, char *);
+	char * string = IoSeq_asCString(io_particulars);
 	me->string = (char *) malloc(strlen(string) * (sizeof(char) + 1));
 	strcpy(me->string, string);
 }

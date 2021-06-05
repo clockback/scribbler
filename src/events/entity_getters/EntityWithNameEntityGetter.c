@@ -2,10 +2,22 @@
 
 #include "EntityWithNameEntityGetter.h"
 
-void EntityWithNameEntityGetter_init(void * me_void, va_list * args) {
+void EntityWithNameEntityGetter_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+) {
 	EntityWithNameEntityGetterPtr me = (EntityWithNameEntityGetterPtr)me_void;
-	me->game = va_arg(*args, GamePtr);
-	me->name = va_arg(*args, StringPtr);
+	me->game = game;
+
+	IoSymbol * get_name = IoState_symbolWithCString_(
+		io_handler->iostate, "name"
+	);
+
+	IoObject * io_name = IoObject_getSlot_(io_particulars, get_name);
+
+	me->name = (StringPtr)malloc(sizeof(String));
+
+	IoHandler_process(io_handler, io_name, me->name);
 }
 
 EntityPtr EntityWithNameEntityGetter_evaluate(void * me_void) {

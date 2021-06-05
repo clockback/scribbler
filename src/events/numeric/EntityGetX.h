@@ -30,7 +30,10 @@ typedef struct {
 
 typedef EntityGetX * EntityGetXPtr;
 
-void EntityGetX_init(void * me, va_list * args);
+void EntityGetX_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 double EntityGetX_evaluate(void * me);
 
 #endif

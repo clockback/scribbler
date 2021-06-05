@@ -4,7 +4,8 @@
 size_t entity_getter_sizes[MAX_ENTITY_GETTERS];
 
 void (*init_for_entity_getter_functions[MAX_ENTITY_GETTERS]) (
-	void * me_void, va_list * args
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
 );
 
 EntityPtr (*evaulate_for_entity_getter_functions[MAX_ENTITY_GETTERS]) (
@@ -12,11 +13,29 @@ EntityPtr (*evaulate_for_entity_getter_functions[MAX_ENTITY_GETTERS]) (
 );
 
 void EntityGetter_init(
-	EntityGetterPtr me, EntityGetterType type, va_list * args
+	EntityGetterPtr me, IoObject * base, IoHandler * io_handler, GamePtr game
 ) {
-	me->type = type;
-	me->particulars = (void *) malloc(entity_getter_sizes[type]);
-	init_for_entity_getter_functions[type](me->particulars, args);
+	const char * entity_getter_type_name = IoObject_name(base);
+
+	if (strcmp(entity_getter_type_name, "EntityObj") == 0) {
+		me->type = RAW_ENTITY;
+	}
+	else if (
+		strcmp(entity_getter_type_name, "EntityWithNameEntityGetterObj") == 0
+	) {
+		me->type = ENTITY_WITH_NAME;
+	}
+	else {
+		printf("Unknown entity getter type: %s\n", entity_getter_type_name);
+		IoObject_print(base);
+		printf("\n");
+		exit(-1);
+	}
+
+	me->particulars = (void *) malloc(entity_getter_sizes[me->type]);
+	init_for_entity_getter_functions[me->type](
+		me->particulars, base, io_handler, game
+	);
 }
 
 EntityPtr EntityGetter_evaluate(EntityGetterPtr me) {

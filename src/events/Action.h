@@ -45,7 +45,8 @@ void init_actions();
 #include "actions/SpeakAction.h"
 
 extern void (*init_for_action_functions[MAX_ACTIONS]) (
-	void * me_void, va_list * args
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
 );
 
 extern bool (*run_for_action_functions[MAX_ACTIONS]) (void * me_void);

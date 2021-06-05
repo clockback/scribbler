@@ -30,7 +30,10 @@ typedef struct {
 
 typedef NumericEqualToCondition * NumericEqualToConditionPtr;
 
-void NumericEqualToCondition_init(void * me, va_list * args);
+void NumericEqualToCondition_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 bool NumericEqualToCondition_evaluate(void * me);
 
 #endif

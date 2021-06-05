@@ -3,7 +3,8 @@
 
 size_t condition_sizes[MAX_CONDITIONS];
 void (*init_for_condition_functions[MAX_CONDITIONS]) (
-	void * me_void, va_list * args
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
 );
 bool (*evaluate_for_condition_functions[MAX_CONDITIONS]) (void * me_void);
 

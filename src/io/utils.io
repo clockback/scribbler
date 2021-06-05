@@ -2,11 +2,13 @@ Create := Object clone;
 Create planes := List clone;
 Create rooms := List clone;
 Create entities := List clone;
+Create scenarios := List clone;
 
 Get := Object clone;
 Get planes := Create planes;
 Get rooms := Create rooms;
 Get entities := Create entities;
+Get scenarios := Create scenarios;
 
 RoomObj := Object clone;
 RoomObj name := "Unnamed";
@@ -45,6 +47,77 @@ EntityObj animate_c := nil;
 EntityObj click_c := nil;
 EntityObj interact_c := nil;
 EntityObj speak_c := nil;
+
+ScenarioObj := Object clone;
+ScenarioObj triggers := List clone;
+ScenarioObj conditions := List clone;
+ScenarioObj actions := List clone;
+
+TriggerObj := Object clone;
+TriggerObj priority := 0;
+TriggerObj particulars := nil;
+
+InteractEntityTriggerObj := Object clone;
+InteractEntityTriggerObj entity := nil;
+
+ConditionObj := Object clone;
+ConditionObj particulars := nil;
+
+NumericEqualToConditionObj := Object clone;
+NumericEqualToConditionObj left := nil;
+NumericEqualToConditionObj right := nil;
+
+NumericGreaterThanConditionObj := Object clone;
+NumericGreaterThanConditionObj left := nil;
+NumericGreaterThanConditionObj right := nil;
+
+NumericGreaterThanOrEqualToConditionObj := Object clone;
+NumericGreaterThanOrEqualToConditionObj left := nil;
+NumericGreaterThanOrEqualToConditionObj right := nil;
+
+NumericLessThanConditionObj := Object clone;
+NumericLessThanConditionObj left := nil;
+NumericLessThanConditionObj right := nil;
+
+NumericLessThanOrEqualToConditionObj := Object clone;
+NumericLessThanOrEqualToConditionObj left := nil;
+NumericLessThanOrEqualToConditionObj right := nil;
+
+ActionObj := Object clone;
+ActionObj particulars := nil;
+ActionObj async := nil;
+
+EntityJourneyToActionObj := Object clone;
+EntityJourneyToActionObj entity := nil;
+EntityJourneyToActionObj x := nil;
+EntityJourneyToActionObj y := nil;
+EntityJourneyToActionObj plane := nil;
+
+SetUserInputActionObj := Object clone;
+SetUserInputActionObj allow_user_input := nil;
+
+SpeakActionObj := Object clone;
+SpeakActionObj entity := nil;
+SpeakActionObj text := nil;
+SpeakActionObj duration := nil;
+
+WaitActionObj := Object clone;
+WaitActionObj duration := nil;
+
+NumericObj := Object clone;
+NumericObj particulars := nil;
+
+EntityGetXNumericObj := Object clone;
+EntityGetXNumericObj entity := nil;
+
+EntityGetYNumericObj := Object clone;
+EntityGetYNumericObj entity := nil;
+
+EntityGetterObj := Object clone;
+EntityGetterObj particulars := nil;
+
+EntityWithNameEntityGetterObj := Object clone;
+EntityWithNameEntityGetterObj name := nil;
 
 MappedObj := Object clone;
 MappedObj x := 0;
@@ -139,6 +212,13 @@ Create entity := method(name,
 	);
 
 	new_entity;
+);
+
+Create scenario := method(
+	new_scenario := ScenarioObj clone;
+	scenarios append(new_scenario);
+	
+	new_scenario;
 );
 
 RoomObj set_focal_point := method(focal_point,
@@ -289,6 +369,128 @@ EntityObj add_interact := method(label,
 EntityObj add_speak := method(
 	speak_c = SpeakObj clone;
 	speak_c;
+);
+
+ScenarioObj add_trigger := method(priority, particulars,
+	new_trigger := TriggerObj clone;
+	triggers append(new_trigger);
+	new_trigger priority = if(priority == nil, 0, priority);
+	new_trigger particulars = nil;
+
+	new_trigger;
+);
+
+TriggerObj interact_entity := method(entity,
+	particulars = InteractEntityTriggerObj clone;
+	particulars entity = entity;
+);
+
+ScenarioObj add_condition := method(particulars,
+	new_condition := ConditionObj clone;
+	conditions append(new_condition);
+	new_condition particulars = nil;
+
+	new_condition;
+);
+
+ConditionObj numeric_equal_to := method(left, right,
+	particulars = NumericEqualToConditionObj clone;
+	particulars left = left;
+	particulars right = right;
+);
+
+ConditionObj numeric_greater_than := method(left, right,
+	particulars = NumericGreaterThanConditionObj clone;
+	particulars left = left;
+	particulars right = right;
+);
+
+ConditionObj numeric_greater_than_or_equal_to := method(left, right,
+	particulars = NumericGreaterThanOrEqualToConditionObj clone;
+	particulars left = left;
+	particulars right = right;
+);
+
+ConditionObj numeric_less_than := method(left, right,
+	particulars = NumericLessThanConditionObj clone;
+	particulars left = left;
+	particulars right = right;
+);
+
+ConditionObj numeric_less_than_or_equal_to := method(left, right,
+	particulars = NumericLessThanOrEqualToConditionObj clone;
+	particulars left = left;
+	particulars right = right;
+);
+
+ScenarioObj add_action := method(particulars,
+	new_action := ActionObj clone;
+	actions append(new_action);
+	new_action particulars = nil;
+	new_action async = 0;
+
+	new_action;
+);
+
+ActionObj entity_journey_to := method(entity, x, y, plane,
+	particulars = EntityJourneyToActionObj clone;
+	particulars entity = entity;
+	particulars x = x;
+	particulars y = y;
+	particulars plane = plane;
+	
+	self;
+);
+
+ActionObj set_user_input := method(allow_user_input,
+	particulars = SetUserInputActionObj clone;
+	particulars allow_user_input = allow_user_input;
+	
+	self;
+);
+
+ActionObj speak := method(entity, text, duration,
+	particulars = SpeakActionObj clone;
+	particulars entity = entity;
+	particulars text = text;
+	particulars duration = duration;
+
+	self;
+);
+
+ActionObj wait := method(duration,
+	particulars = WaitActionObj clone;
+	particulars duration = duration;
+
+	self;
+);
+
+ActionObj async := method(
+	async = 1;
+);
+
+entity_get_x := method(entity,
+	new_numeric := NumericObj clone;
+	new_numeric particulars = EntityGetXNumericObj clone;
+	new_numeric particulars entity = entity;
+
+	new_numeric;
+);
+
+entity_get_y := method(entity,
+	new_numeric := NumericObj clone;
+	new_numeric particulars = EntityGetYNumericObj clone;
+	new_numeric particulars entity = entity;
+
+	new_numeric;
+);
+
+entity_with_name := method(name,
+	new_entity_getter := EntityGetterObj clone;
+	new_entity_getter particulars = EntityWithNameEntityGetterObj clone;
+	new_entity_getter particulars name = name;
+
+	new_entity_getter;
 );
 
 SpriteObj enable_scaling := method(enabled,

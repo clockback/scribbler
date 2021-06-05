@@ -27,11 +27,14 @@ typedef WaitAction * WaitActionPtr;
 #include "../Action.h"
 
 struct WaitAction {
-	int duration;
+	NumericPtr duration;
 	int current;
 };
 
-void WaitAction_init(void * me, va_list * args);
+void WaitAction_init(
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
+);
 bool WaitAction_run(void * me);
 
 #endif

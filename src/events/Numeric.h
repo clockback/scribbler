@@ -24,6 +24,8 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+#include "io/IoObject.h"
+
 typedef enum {
 	RAW_NUMERIC,
 	ENTITY_GET_X,
@@ -31,16 +33,21 @@ typedef enum {
 	MAX_NUMERICS
 } NumericType;
 
-extern size_t numeric_sizes[MAX_NUMERICS];
-
-typedef struct {
-	NumericType type;
-	void * particulars;
-} Numeric;
-
+typedef struct Numeric Numeric;
 typedef Numeric * NumericPtr;
 
-void Numeric_init(NumericPtr me, NumericType type, va_list * args);
+#include "../objects/IoHandler.h"
+
+extern size_t numeric_sizes[MAX_NUMERICS];
+
+struct Numeric {
+	NumericType type;
+	void * particulars;
+};
+
+void Numeric_init(
+	NumericPtr me, IoObject * base, IoHandler * io_handler, GamePtr game
+);
 double Numeric_evaluate(NumericPtr me);
 
 void pre_init_numeric_functions();
@@ -53,7 +60,8 @@ void init_numerics();
 #include "numeric/RawNumeric.h"
 
 extern void (*init_for_numeric_functions[MAX_NUMERICS]) (
-	void * me_void, va_list * args
+	void * me_void, IoObject * io_particulars, IoHandler * io_handler,
+	GamePtr game
 );
 
 extern double (*evaulate_for_numeric_functions[MAX_NUMERICS]) (void * me_void);

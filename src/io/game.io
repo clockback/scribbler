@@ -65,3 +65,13 @@ rubbish_bin add_click \
 	set_interact_point(C(1, 0, ground_floor), 1, 0.1, "LEFT_DIR");
 rubbish_bin add_interact("Rubbish bin");
 ground_floor set_unwalkable(C(0, 0));
+
+observe_bin_scenario := Create scenario;
+observe_bin_scenario add_trigger interact_entity(rubbish_bin);
+observe_bin_scenario add_condition numeric_equal_to(entity_get_x(micah), 1);
+observe_bin_scenario add_action set_user_input(0);
+observe_bin_scenario add_action wait(200);
+observe_bin_scenario add_action \
+	entity_journey_to(micah, 2.3, 1.3, ground_floor);
+observe_bin_scenario add_action speak(micah, "Hello", 100);
+observe_bin_scenario add_action set_user_input(1);
