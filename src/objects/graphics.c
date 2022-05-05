@@ -1,6 +1,6 @@
 /**
  * Scribbler
- * Copyright (C) 2021 Elliot Paton-Simpson
+ * Copyright (C) 2022 Elliot Paton-Simpson
  *
  * This file is part of Scribbler.
  *
@@ -26,6 +26,7 @@
 void Screen_init(ScreenPtr me, int width, int height, int scale) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         printf("Error: SDL failed to initialize.\n");
+        printf("Details: %s", SDL_GetError());
         exit(-1);
     }
 

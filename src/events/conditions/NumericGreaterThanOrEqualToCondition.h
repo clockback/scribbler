@@ -1,6 +1,6 @@
 /**
  * Scribbler
- * Copyright (C) 2021 Elliot Paton-Simpson
+ * Copyright (C) 2022 Elliot Paton-Simpson
  *
  * This file is part of Scribbler.
  *

@@ -1,56 +1,7 @@
-scribbler:
-	gcc \
-		src/main.c \
-		src/objects/graphics.c \
-		src/objects/game.c \
-		src/objects/room.c \
-		src/objects/font.c \
-		src/objects/globals.c \
-		src/objects/IoHandler.c \
-		src/events/ScenarioManager.c \
-		src/events/Trigger.c \
-		src/events/triggers/InteractEntityTrigger.c \
-		src/events/Condition.c \
-		src/events/conditions/NumericLessThanOrEqualToCondition.c \
-		src/events/conditions/NumericLessThanCondition.c \
-		src/events/conditions/NumericGreaterThanOrEqualToCondition.c \
-		src/events/conditions/NumericGreaterThanCondition.c \
-		src/events/conditions/NumericEqualToCondition.c \
-		src/events/Action.c \
-		src/events/actions/EntityJourneyToAction.c \
-		src/events/actions/SetUserInputAction.c \
-		src/events/actions/WaitAction.c \
-		src/events/actions/SpeakAction.c \
-		src/events/ActionQueue.c \
-		src/events/Numeric.c \
-		src/events/numeric/RawNumeric.c \
-		src/events/numeric/EntityGetX.c \
-		src/events/numeric/EntityGetY.c \
-		src/events/EntityGetter.c \
-		src/events/entity_getters/RawEntityEntityGetter.c \
-		src/events/entity_getters/EntityWithNameEntityGetter.c \
-		src/events/String.c \
-		src/events/strings/RawStringString.c \
-		src/events/PlaneGetter.c \
-		src/events/plane_getters/RawPlanePlaneGetter.c \
-		src/ECS/Components.c \
-		src/ECS/ECS.c \
-		src/ECS/MoveComponent.c \
-		src/ECS/SpriteComponent.c \
-		src/ECS/MappedComponent.c \
-		src/ECS/JourneyComponent.c \
-		src/ECS/AnimateComponent.c \
-		src/ECS/ClickComponent.c \
-		src/ECS/InteractComponent.c \
-		src/ECS/SpeakComponent.c \
-		src/solver.c \
-		-lSDL2main \
-		-lSDL2 \
-		-lSDL2_image \
-		-liovmall \
-		-ldl \
-		-lm \
-		-Wall \
-		-fmax-errors=1 \
-		-o \
-	scribbler.bin
+build:
+	docker build -t scribbler-build .
+run: build
+	mkdir -p output
+	docker run --name scribbler-build --rm --mount type=bind,source=$(shell pwd)/output,target=/output scribbler-build
+	chown $(shell logname) output output/scribbler
+

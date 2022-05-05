@@ -3,7 +3,7 @@ Scribbler is a free and open-source adventure video game engine.
 
 ### License
 
-Copyright © 2021 Elliot Paton-Simpson
+Copyright © 2022 Elliot Paton-Simpson
 
 Scribbler is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

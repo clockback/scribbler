@@ -1,6 +1,6 @@
 /**
  * Scribbler
- * Copyright (C) 2021 Elliot Paton-Simpson
+ * Copyright (C) 2022 Elliot Paton-Simpson
  *
  * This file is part of Scribbler.
  *
@@ -42,14 +42,14 @@ int main(int argc, char *argv[]) {
     while (game->running) {
     	frame_start = SDL_GetTicks();
 
-		Game_handle_events(game);
+        Game_handle_events(game);
     	Game_update(game);
     	Game_render(game);
 
     	frame_time = SDL_GetTicks() - frame_start;
 
     	if (frame_delay > frame_time) {
-    		SDL_Delay(frame_delay - frame_time);
+            SDL_Delay(frame_delay - frame_time);
     	}
     }
 
